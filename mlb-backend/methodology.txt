@@ -1,0 +1,58 @@
+This details the tentative methodology of this simulation
+----------------------------------------------------------
+
+1. API call to get current mlb schedule
+    a. Want this split from current/past games since we don't want to simualte past games
+
+2. At the time of the refresh, API call to get each team's current roster
+
+3. Run simulate(Team a, Team b) for the rest of the remaining games using that roster
+
+4. Note that we want to run step 3 ~1000 times to get an accurate projection based on large sample size
+
+5. On the frontend, we could have a projected standings table, state postseason probabilites, and also graph postseason
+    odds from the beginning of the season until the current point. (WIP)
+
+
+Simulate Method (WIP!!!)
+------------------------
+This is mostly just preliminary ideas. Clearly, since this is where the actual projection
+is made, this will be iterated on A LOT. 
+
+    Pitching
+    --------
+        - Emphasis towards peripheral stats (no luck involved)
+            - HR/9, K/9, BB/9, HardHit%, GB%
+        - Maybe aggregate these stats in some distribution to give each pitcher
+            a "rating"
+    
+    Hitting/Fielding
+    ----------------
+        - this is a little more difficult to quantify in a fair way
+        - Some combination of OBP, OPS, SB, XBT% (extra bases taken),
+            K%, and BA should give a good representation of offense output
+        - Also incorporate Fielding percentage and defensive runs saved
+        - As with pitchers, aggregate these stats to give some rating
+
+Ratings would want to more heavily weight stats from current year (take into account small
+sample size variance) and less the previous year played.
+    - Maybe if G < 20 for hitters, GS < 8 for starters, G < 20 for relievers, then the
+        previous year is weighted equally
+
+With ratings for all players rostered (IGNORE players on IL), can now create a
+team rating.
+
+    1. 8 best position players given a 1x multiplier in team rating
+    2. Remaining position players given a .4x multiplier (WIP)
+    3. Starting pitchers 1x, Relief .8x (WIP)
+
+Using the team ratings of the two teams, determine probability of either team
+winning then RNG to determine actual winner.
+
+Extra: 
+    1. Home field advantage - simple +/- on the team's rating (similar to 538)
+    2. Streaks/Morale (the human element)
+        - Say two teams rated 100 but one team is 9-1 in last 10, other team is
+            1-9, fair to say that statistically they might have the same odds, but
+            conceptually the first team has the mental edge.
+        - Regardless, should be a small difference, maybe <=2% in odds
