@@ -14,10 +14,28 @@ mongoose.connect(process.env.MONGODB_IP,
         throw new Error('Could not connect to database. Exiting...');
       }
       console.log('Successfully connected to MongoDB instance.');
-      simulateRestOfSeason();
+      //simulateRestOfSeason();
+      loadDummyData();
     }
 );
 
-simulateRestOfSeason() {
+function loadDummyData() {
+  const yankees = new TeamResult({
+      code: "NYY",
+      division: 'ALE',
+      currentWins: 61,
+      currentLosses: 49,
+      projWins: 88.0,
+      projLosses: 74.0,
+      playoffOdds: 27.2,
+      divisionOdds: 1.7,
+      WCOdds: 25.5,
+      pennantOdds: 2.0,
+      championshipOdds: 0.6
+  });
+  yankees.save();
+}
+
+function simulateRestOfSeason() {
     let a = 2; // simulateSeason here
 }

@@ -48,4 +48,4 @@ const teamResultSchema = new Schema({
     }
 });
 
-export default mongoose.model('Result', teamResultSchema)
+export const TeamResult = mongoose.model('TeamResult', teamResultSchema);
