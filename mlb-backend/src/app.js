@@ -3,6 +3,8 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import indexRouter from './routes/index';
+import dotenv from 'dotenv';
+dotenv.config();
 const app = express();
 app.use(logger('dev'));
 app.use(express.json());
@@ -20,7 +22,7 @@ mongoose.connect(process.env.MONGODB_IP,
       throw new Error('Could not connect to database. Exiting...');
     }
     console.log('Successfully connected to MongoDB instance.');
-    server.listen(PORT, () => {
+    app.listen(process.env.PORT, () => {
       console.log(`Server started on port ${PORT}.`);
     });
   }
