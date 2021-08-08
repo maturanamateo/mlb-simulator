@@ -23,7 +23,7 @@ mongoose.connect(process.env.MONGODB_IP,
     }
     console.log('Successfully connected to MongoDB instance.');
     app.listen(process.env.PORT, () => {
-      console.log(`Server started on port ${PORT}.`);
+      console.log(`Server started on port ${process.env.PORT}.`);
     });
   }
 );
