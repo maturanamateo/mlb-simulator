@@ -1,4 +1,5 @@
 import { TeamResult } from '../models/TeamResult';
+import { DateResult } from '../models/DateResult';
 import { Types } from 'mongoose';
 
 export async function getResults(req, res, next) {
@@ -15,5 +16,13 @@ export async function getResults(req, res, next) {
             results.push(result);
         }
     }
+    return res.json(results);
+}
+
+export async function getResultsByDate(req, res, next) {
+    const date = Date(req.body.date);
+    let dateString = date.toISOString().slice(0, 10);
+    let results = [];
+    results = await DateResult.find({date: new Date(dateString)});
     return res.json(results);
 }

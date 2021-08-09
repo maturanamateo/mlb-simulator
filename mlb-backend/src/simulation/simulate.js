@@ -1,4 +1,5 @@
 import { TeamResult } from '../models/TeamResult';
+import { DateResult } from '../models/DateResult';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
@@ -90,6 +91,39 @@ async function loadDummyData() {
       championshipOdds: 0});
     orioles.save();
   }
+  await DateResult.deleteMany({});
+  const august8 = new DateResult({
+    date: '2021-08-08',
+    teamResults: [
+      {
+        teamCode: 'NYY',
+        division: 'ALE',
+        odds: 27.2
+      },
+      {
+        teamCode: 'TB',
+        division: 'ALE',
+        odds: 96.4
+      }
+    ]
+  });
+  august8.save();
+  const august9 = new DateResult({
+    date: '2021-08-09',
+    teamResults: [
+      {
+        teamCode: 'NYY',
+        division: 'ALE',
+        odds: 22.1
+      },
+      {
+        teamCode: 'TB',
+        division: 'ALE',
+        odds: 97.1
+      }
+    ]
+  });
+  august9.save();
 }
 
 function simulateRestOfSeason() {
