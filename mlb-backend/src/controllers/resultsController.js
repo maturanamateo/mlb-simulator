@@ -1,1 +1,19 @@
-// TODO (controller to get result on FE)
+import { TeamResult } from '../models/TeamReuslt';
+import { Types } from 'mongoose';
+
+export async function getResults(req, res, next) {
+    /* 
+     * Order ALE -> ALC -> ALW -> NLE -> NLC -> NLW
+     * so easier to interpret on Frontend
+     */
+    const divisions = ['ALE', 'ALC', 'ALW', 'NLE', 'NLC', 'NLW'];
+    let results = [];
+    for (const division of divisions) {
+        for (let i = 0; i < 6; i++) {
+            let result = await TeamResult.find({division: 'ALE'})
+                .sort({playoffOdds: -1}).skip(i);
+            results.push(result);
+        }
+    }
+    return res.json(results);
+}

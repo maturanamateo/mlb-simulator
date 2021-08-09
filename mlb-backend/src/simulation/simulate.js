@@ -19,7 +19,8 @@ mongoose.connect(process.env.MONGODB_IP,
     }
 );
 
-function loadDummyData() {
+async function loadDummyData() {
+  await TeamResult.deleteMany({});
   const yankees = new TeamResult({
       code: "NYY",
       division: 'ALE',
