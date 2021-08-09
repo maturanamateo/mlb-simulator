@@ -119,6 +119,10 @@
           }
         }
       }
-    }},
-  "defaultProject": "mlb-frontend"
+    }
+  },
+  "defaultProject": "mlb-frontend",
+  "cli": {
+    "analytics": "2eca096d-8da1-48d2-89f0-0d00d7561315"
+  }
 }

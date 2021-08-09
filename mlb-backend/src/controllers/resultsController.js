@@ -1,4 +1,4 @@
-import { TeamResult } from '../models/TeamReuslt';
+import { TeamResult } from '../models/TeamResult';
 import { Types } from 'mongoose';
 
 export async function getResults(req, res, next) {
