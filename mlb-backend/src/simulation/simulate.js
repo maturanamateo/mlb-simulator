@@ -96,12 +96,12 @@ async function loadDummyData() {
     date: '2021-08-08',
     teamResults: [
       {
-        teamCode: 'NYY',
+        code: 'NYY',
         division: 'ALE',
         odds: 27.2
       },
       {
-        teamCode: 'TB',
+        code: 'TB',
         division: 'ALE',
         odds: 96.4
       }
@@ -112,12 +112,12 @@ async function loadDummyData() {
     date: '2021-08-09',
     teamResults: [
       {
-        teamCode: 'NYY',
+        code: 'NYY',
         division: 'ALE',
         odds: 22.1
       },
       {
-        teamCode: 'TB',
+        code: 'TB',
         division: 'ALE',
         odds: 97.1
       }

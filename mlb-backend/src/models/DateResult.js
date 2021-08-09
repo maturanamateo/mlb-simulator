@@ -7,7 +7,7 @@ const dateResultSchema = new Schema({
     },
     teamResults: [
         {
-            teamCode: {
+            code: {
                 type: String,
                 required: true
             },
