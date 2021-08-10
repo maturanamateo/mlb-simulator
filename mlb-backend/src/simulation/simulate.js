@@ -8,9 +8,11 @@ const axios = require('axios');
 
 const TOTAL_GAMES = 162;
 const CURRENT_YEAR = new Date().getFullYear();
+const START_DATE_TIME = new Date(`03/15/${CURRENT_YEAR}`).getTime();
+const END_DATE_TIME = new Date(`10/15/${CURRENT_YEAR}`).getTime();
 const idToTeamIndex = new Map(); // easy lookups when doing games
 let teams = [];
-const TOTAL_ITERATIONS = 1000;
+const TOTAL_ITERATIONS = 1;
 const MLB_API_URL = 'https://statsapi.mlb.com/api/v1';
 
 mongoose.connect(process.env.MONGODB_IP,
@@ -32,7 +34,7 @@ async function runAll() {
   await setTeams();
   await setCurrentRecords();
   for (let i = 0; i < TOTAL_ITERATIONS; i++) {
-     await simulateRestOfSeason();
+    await simulateRestOfSeason();
   }
   addToDB();
 }
@@ -363,9 +365,49 @@ function clearSeasonStats() {
   }
 }
 
-function simulateRestOfSeason() {
+async function simulateRestOfSeason() {
   // simulate rest of season
+  let date = new Date();
+  let time = date.getTime();
+  while (time >= START_DATE_TIME && time <= END_DATE_TIME) {
+    const getData = async () => {
+      try {
+        const formattedDate = ('0' + parseInt(date.getMonth() + 1)).slice(-2) + '/' +
+        ('0' + date.getDate()).slice(-2) + '/' + date.getFullYear();
+        const response = await axios.get(`${MLB_API_URL}/schedule/games/?sportId=1&date=${formattedDate}`);
+        const dates = response.data.dates;
+        for (let i = 0; i < dates.length; i++) {
+          const games = response.data.dates[i].games;
+          for (let j = 0; j < games.length; j++) {
+            const game = games[j];
+            let teamID1 = game.teams.home.team.id;
+            let teamID2 = game.teams.away.team.id;
+            let result = compete(teamID1, teamID2);
+            if (result == 0) {
+              teams[idToTeamIndex.get(teamID1)].winsInSeason += 1;
+              teams[idToTeamIndex.get(teamID2)].lossesInSeason += 1;
+            } else {
+              teams[idToTeamIndex.get(teamID1)].lossesInSeason += 1;
+              teams[idToTeamIndex.get(teamID2)].winsInSeason += 1;
+            }
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    await getData();
+    date.setDate(date.getDate() + 1);
+    time = date.getTime();
+  }
   clearSeasonStats();
+}
+
+function compete(id1, id2) {
+  // returns 0 if team1 wins, 1 if team2 wins
+  // team1 is home team
+  // TODO
+  return 0;
 }
 
 async function addToDB() {
@@ -386,4 +428,5 @@ async function addToDB() {
       championshipOdds: teams[i].champWins / TOTAL_ITERATIONS});
     genTeam.save();
   }
+  console.log("Successfully Updated DB!");
 }
