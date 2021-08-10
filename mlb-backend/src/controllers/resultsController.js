@@ -11,7 +11,7 @@ export async function getResults(req, res, next) {
     let results = [];
     for (const division of divisions) {
         for (let i = 0; i < 5; i++) {
-            let result = await TeamResult.findOne({division: 'ALE'})
+            let result = await TeamResult.findOne({division: division})
                 .sort({playoffOdds: -1}).skip(i);
             results.push(result);
         }
