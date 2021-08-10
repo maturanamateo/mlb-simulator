@@ -1,0 +1,13 @@
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+.division {
+    border-right-style: hidden;
+    color: #8B0000
+}
+
+.title {
+    font-size: 30px;
+}

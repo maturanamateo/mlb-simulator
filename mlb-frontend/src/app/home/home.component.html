@@ -1,1 +1,148 @@
-<p>home works!</p>
+<div class = "title">
+    Postseason Odds
+</div>
+<table style="width:100%">
+    <tr>
+        <th class="header">
+            Team
+        </th>
+        <th class="header">
+            Division
+        </th>
+        <th class="header">
+            W
+        </th>
+        <th class="header">
+            L
+        </th>
+        <th class="header">
+            Proj W
+        </th>
+        <th class="header">
+            Proj L
+        </th>
+        <th class="header">
+            Postseason %
+        </th>
+        <th class="header">
+            Division %
+        </th>
+        <th class="header">
+            Wild Card %
+        </th>
+        <th class="header">
+            Pennant %
+        </th>
+        <th class="header">
+            World Series %
+        </th>
+    </tr> <tr> </tr>
+    <tr>
+        <td class="division">
+            ALE
+        </td>
+    </tr>
+    <tr *ngFor="let team of ALE">
+        <td> {{ team.code }} </td>
+        <td> {{ team.division }} </td>
+        <td> {{ team.currentWins }} </td>
+        <td> {{ team.currentLosses }} </td>
+        <td> {{ team.projWins }} </td>
+        <td> {{ team.projLosses }} </td>
+        <td> {{ team.playoffOdds }} </td> 
+        <td> {{ team.divisionOdds }} </td>
+        <td> {{ team.WCOdds }} </td>
+        <td> {{ team.pennantOdds }} </td>
+        <td> {{ team.championshipOdds }} </td>
+    </tr>
+    <tr>
+        <td class="division">
+            ALC
+        </td>
+    </tr>
+    <tr *ngFor="let team of ALC">
+        <td> {{ team.code }} </td>
+        <td> {{ team.division }} </td>
+        <td> {{ team.currentWins }} </td>
+        <td> {{ team.currentLosses }} </td>
+        <td> {{ team.projWins }} </td>
+        <td> {{ team.projLosses }} </td>
+        <td> {{ team.playoffOdds }} </td> 
+        <td> {{ team.divisionOdds }} </td>
+        <td> {{ team.WCOdds }} </td>
+        <td> {{ team.pennantOdds }} </td>
+        <td> {{ team.championshipOdds }} </td>
+    </tr>
+    <tr>
+        <td class="division">
+            ALW
+        </td>
+    </tr>
+    <tr *ngFor="let team of ALW">
+        <td> {{ team.code }} </td>
+        <td> {{ team.division }} </td>
+        <td> {{ team.currentWins }} </td>
+        <td> {{ team.currentLosses }} </td>
+        <td> {{ team.projWins }} </td>
+        <td> {{ team.projLosses }} </td>
+        <td> {{ team.playoffOdds }} </td> 
+        <td> {{ team.divisionOdds }} </td>
+        <td> {{ team.WCOdds }} </td>
+        <td> {{ team.pennantOdds }} </td>
+        <td> {{ team.championshipOdds }} </td>
+    </tr>
+    <tr>
+        <td class="division">
+            NLE
+        </td>
+    </tr>
+    <tr *ngFor="let team of NLE">
+        <td> {{ team.code }} </td>
+        <td> {{ team.division }} </td>
+        <td> {{ team.currentWins }} </td>
+        <td> {{ team.currentLosses }} </td>
+        <td> {{ team.projWins }} </td>
+        <td> {{ team.projLosses }} </td>
+        <td> {{ team.playoffOdds }} </td> 
+        <td> {{ team.divisionOdds }} </td>
+        <td> {{ team.WCOdds }} </td>
+        <td> {{ team.pennantOdds }} </td>
+        <td> {{ team.championshipOdds }} </td>
+    </tr>
+    <tr>
+        <td class="division">
+            NLC
+        </td>
+    </tr>
+    <tr *ngFor="let team of NLC">
+        <td> {{ team.code }} </td>
+        <td> {{ team.division }} </td>
+        <td> {{ team.currentWins }} </td>
+        <td> {{ team.currentLosses }} </td>
+        <td> {{ team.projWins }} </td>
+        <td> {{ team.projLosses }} </td>
+        <td> {{ team.playoffOdds }} </td> 
+        <td> {{ team.divisionOdds }} </td>
+        <td> {{ team.WCOdds }} </td>
+        <td> {{ team.pennantOdds }} </td>
+        <td> {{ team.championshipOdds }} </td>
+    </tr>
+    <tr>
+        <td class="division">
+            NLW
+        </td>
+    </tr>
+    <tr *ngFor="let team of NLW">
+        <td> {{ team.code }} </td>
+        <td> {{ team.division }} </td>
+        <td> {{ team.currentWins }} </td>
+        <td> {{ team.currentLosses }} </td>
+        <td> {{ team.projWins }} </td>
+        <td> {{ team.projLosses }} </td>
+        <td> {{ team.playoffOdds }} </td> 
+        <td> {{ team.divisionOdds }} </td>
+        <td> {{ team.WCOdds }} </td>
+        <td> {{ team.pennantOdds }} </td>
+        <td> {{ team.championshipOdds }} </td>
+    </tr>
+</table>

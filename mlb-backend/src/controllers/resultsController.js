@@ -10,8 +10,8 @@ export async function getResults(req, res, next) {
     const divisions = ['ALE', 'ALC', 'ALW', 'NLE', 'NLC', 'NLW'];
     let results = [];
     for (const division of divisions) {
-        for (let i = 0; i < 6; i++) {
-            let result = await TeamResult.find({division: 'ALE'})
+        for (let i = 0; i < 5; i++) {
+            let result = await TeamResult.findOne({division: 'ALE'})
                 .sort({playoffOdds: -1}).skip(i);
             results.push(result);
         }
