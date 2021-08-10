@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const TOTAL_GAMES = 162;
-const codeToTeamIndex = new Map(); // easy lookups when doing games
+const idToTeamIndex = new Map(); // easy lookups when doing games
 let teams = [];
 const TOTAL_ITERATIONS = 1000;
 
@@ -133,16 +133,6 @@ async function loadDummyData() {
     ]
   });
   august9.save();
-  const Mlbplayers = require('mlbplayers');
-  var options = {
-    path: 'year_2011/month_07/day_23'
-  };
-  var mlbplayers = new Mlbplayers(options);
-  console.log(mlbplayers);
-  console.log("hi");
-  mlbplayers.get(function (err, players) {
-    console.log(players);
-  });
 }
 
 // Class code is placeholder
@@ -150,9 +140,7 @@ export class Pitcher {
   rating;
   hr9;
 
-  constructor(firstName, lastName, playerId) {
-    this.firstName = firstName;
-    this.lastName = lastName;
+  constructor(playerId) {
     this.playerId = playerId;
     this.getStats();
     this.setRating();
@@ -171,7 +159,7 @@ export class Position {
   rating;
   ops;
 
-  constructor(firstName, lastName, playerId) {
+  constructor(playerId) {
     this.firstName = firstName;
     this.lastName = lastName;
     this.playerId = playerId;
@@ -229,95 +217,96 @@ export class Team {
 }
 
 function setTeams() {
+  // ids from mlbstatsapi
   let yankees = new Team('NYY', 'ALE');
-  codeToTeamIndex.set('NYY', 0);
+  codeToTeamIndex.set(147, 0);
   teams.push(yankees);
   let redsox = new Team('BOS', 'ALE');
-  codeToTeamIndex.set('BOS', 1);
+  codeToTeamIndex.set(111, 1);
   teams.push(redsox);
   let jays = new Team('TOR', 'ALE');
-  codeToTeamIndex.set('TOR', 2);
+  codeToTeamIndex.set(141, 2);
   teams.push(jays);
   let rays = new Team('TB', 'ALE');
-  codeToTeamIndex.set('TB', 3);
+  codeToTeamIndex.set(139, 3);
   teams.push(rays);
   let orioles = new Team('BAL', 'ALE');
-  codeToTeamIndex.set('BAL', 4);
+  codeToTeamIndex.set(110, 4);
   teams.push(orioles);
   let whitesox = new Team('CWS', 'ALC');
-  codeToTeamIndex.set('CWS', 5);
+  codeToTeamIndex.set(145, 5);
   teams.push(whitesox);
   let indians = new Team('CLE', 'ALC');
-  codeToTeamIndex.set('CLE', 6);
+  codeToTeamIndex.set(114, 6);
   teams.push(indians);
   let tigers = new Team('DET', 'ALC');
-  codeToTeamIndex.set('DET', 7);
+  codeToTeamIndex.set(116, 7);
   teams.push(tigers);
   let royals = new Team('KC', 'ALC');
-  codeToTeamIndex.set('KC', 8);
+  codeToTeamIndex.set(118, 8);
   teams.push(royals);
   let twins = new Team('MIN', 'ALC');
-  codeToTeamIndex.set('MIN', 9);
+  codeToTeamIndex.set(142, 9);
   teams.push(twins);
   let astros = new Team('HOU', 'ALW');
-  codeToTeamIndex.set('HOU', 10);
+  codeToTeamIndex.set(117, 10);
   teams.push(astros);
   let angels = new Team('LAA', 'ALW');
-  codeToTeamIndex.set('LAA', 11);
+  codeToTeamIndex.set(108, 11);
   teams.push(angels);
   let athletics = new Team('OAK', 'ALW');
-  codeToTeamIndex.set('OAK', 12);
+  codeToTeamIndex.set(133, 12);
   teams.push(athletics);
   let mariners = new Team('SEA', 'ALW');
-  codeToTeamIndex.set('SEA', 13);
+  codeToTeamIndex.set(136, 13);
   teams.push(mariners);
   let rangers = new Team('TEX', 'ALW');
-  codeToTeamIndex.set('TEX', 14);
+  codeToTeamIndex.set(140, 14);
   teams.push(rangers);
   let braves = new Team('ATL', 'NLE');
-  codeToTeamIndex.set('ATL', 15);
+  codeToTeamIndex.set(144, 15);
   teams.push(braves);
   let marlins = new Team('MIA', 'NLE');
-  codeToTeamIndex.set('MIA', 16);
+  codeToTeamIndex.set(146, 16);
   teams.push(marlins);
   let mets = new Team('NYM', 'NLE');
-  codeToTeamIndex.set('NYM', 17);
+  codeToTeamIndex.set(121, 17);
   teams.push(mets);
   let phillies = new Team('PHI', 'NLE');
-  codeToTeamIndex.set('PHI', 18);
+  codeToTeamIndex.set(143, 18);
   teams.push(phillies);
   let nationals = new Team('WSH', 'NLE');
-  codeToTeamIndex.set('WSH', 19);
+  codeToTeamIndex.set(120, 19);
   teams.push(nationals);
   let cubs = new Team('CHC', 'NLC');
-  codeToTeamIndex.set('CHC', 20);
+  codeToTeamIndex.set(112, 20);
   teams.push(cubs);
   let reds = new Team('CIN', 'NLC');
-  codeToTeamIndex.set('CIN', 21);
+  codeToTeamIndex.set(113, 21);
   teams.push(reds);
   let brewers = new Team('MIL', 'NLC');
-  codeToTeamIndex.set('MIL', 22);
+  codeToTeamIndex.set(158, 22);
   teams.push(brewers);
   let pirates = new Team('PIT', 'NLC');
-  codeToTeamIndex.set('PIT', 23);
+  codeToTeamIndex.set(134, 23);
   teams.push(pirates);
   let cardinals = new Team('STL', 'NLC');
-  codeToTeamIndex.set('STL', 24);
+  codeToTeamIndex.set(138, 24);
   teams.push(cardinals);
   let diamondbacks = new Team('ARI', 'NLW');
-  codeToTeamIndex.set('ARI', 25);
+  codeToTeamIndex.set(109, 25);
   teams.push(diamondbacks);
   let rockies = new Team('COL', 'NLW');
-  codeToTeamIndex.set('COL', 26);
+  codeToTeamIndex.set(115, 26);
   teams.push(rockies);
   let giants = new Team('SF', 'NLW');
-  codeToTeamIndex.set('SF', 27);
+  codeToTeamIndex.set(137, 27);
   teams.push(giants);
   let padres = new Team('SD', 'NLW');
-  codeToTeamIndex.set('SD', 28);
+  codeToTeamIndex.set(135, 28);
   teams.push(padres);
   let dodgers = new Team('LAD', 'NLW');
-  codeToTeamIndex.set('LAD', 29);
+  codeToTeamIndex.set(119, 29);
   teams.push(dodgers);
 }
 
