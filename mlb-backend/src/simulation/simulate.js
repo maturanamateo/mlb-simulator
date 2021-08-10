@@ -4,11 +4,14 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
 dotenv.config();
+const axios = require('axios');
 
 const TOTAL_GAMES = 162;
+const CURRENT_YEAR = new Date().getFullYear();
 const idToTeamIndex = new Map(); // easy lookups when doing games
 let teams = [];
 const TOTAL_ITERATIONS = 1000;
+const MLB_API_URL = 'https://statsapi.mlb.com/api/v1';
 
 mongoose.connect(process.env.MONGODB_IP,
     {
@@ -21,13 +24,18 @@ mongoose.connect(process.env.MONGODB_IP,
       }
       console.log('Successfully connected to MongoDB instance.');
       /* loadDummyData(); */
-      setTeams();
-      for (let i = 0; i < TOTAL_ITERATIONS; i++) {
-        simulateRestOfSeason();
-      }
-      addToDB();
+      runAll();
     }
 );
+
+async function runAll() {
+  await setTeams();
+  await setCurrentRecords();
+  for (let i = 0; i < TOTAL_ITERATIONS; i++) {
+     await simulateRestOfSeason();
+  }
+  addToDB();
+}
 
 async function loadDummyData() {
   // dummy data as of 8/8
@@ -192,10 +200,10 @@ export class Team {
   pennantWins = 0;
   champWins = 0;
 
-  constructor(code, division) {
+  constructor(code, division, id) {
     this.code = code;
     this.division = division;
-    this.getCurrentRecord();
+    this.id = id;
     this.getPlayers();
     this.setRating();
   }
@@ -205,12 +213,6 @@ export class Team {
     this.rating = 1500;
   }
 
-  getCurrentRecord() {
-    // TODO
-    this.currentWins = 81;
-    this.currentLosses = 81;
-  }
-
   getPlayers() {
     // TODO
   }
@@ -218,96 +220,118 @@ export class Team {
 
 function setTeams() {
   // ids from mlbstatsapi
-  let yankees = new Team('NYY', 'ALE');
-  codeToTeamIndex.set(147, 0);
+  let yankees = new Team('NYY', 'ALE', 147);
+  idToTeamIndex.set(147, 0);
   teams.push(yankees);
-  let redsox = new Team('BOS', 'ALE');
-  codeToTeamIndex.set(111, 1);
+  let redsox = new Team('BOS', 'ALE', 111);
+  idToTeamIndex.set(111, 1);
   teams.push(redsox);
-  let jays = new Team('TOR', 'ALE');
-  codeToTeamIndex.set(141, 2);
+  let jays = new Team('TOR', 'ALE', 141);
+  idToTeamIndex.set(141, 2);
   teams.push(jays);
-  let rays = new Team('TB', 'ALE');
-  codeToTeamIndex.set(139, 3);
+  let rays = new Team('TB', 'ALE', 139);
+  idToTeamIndex.set(139, 3);
   teams.push(rays);
-  let orioles = new Team('BAL', 'ALE');
-  codeToTeamIndex.set(110, 4);
+  let orioles = new Team('BAL', 'ALE', 110);
+  idToTeamIndex.set(110, 4);
   teams.push(orioles);
-  let whitesox = new Team('CWS', 'ALC');
-  codeToTeamIndex.set(145, 5);
+  let whitesox = new Team('CWS', 'ALC', 145);
+  idToTeamIndex.set(145, 5);
   teams.push(whitesox);
-  let indians = new Team('CLE', 'ALC');
-  codeToTeamIndex.set(114, 6);
+  let indians = new Team('CLE', 'ALC', 114);
+  idToTeamIndex.set(114, 6);
   teams.push(indians);
-  let tigers = new Team('DET', 'ALC');
-  codeToTeamIndex.set(116, 7);
+  let tigers = new Team('DET', 'ALC', 116);
+  idToTeamIndex.set(116, 7);
   teams.push(tigers);
-  let royals = new Team('KC', 'ALC');
-  codeToTeamIndex.set(118, 8);
+  let royals = new Team('KC', 'ALC', 118);
+  idToTeamIndex.set(118, 8);
   teams.push(royals);
-  let twins = new Team('MIN', 'ALC');
-  codeToTeamIndex.set(142, 9);
+  let twins = new Team('MIN', 'ALC', 142);
+  idToTeamIndex.set(142, 9);
   teams.push(twins);
-  let astros = new Team('HOU', 'ALW');
-  codeToTeamIndex.set(117, 10);
+  let astros = new Team('HOU', 'ALW', 117);
+  idToTeamIndex.set(117, 10);
   teams.push(astros);
-  let angels = new Team('LAA', 'ALW');
-  codeToTeamIndex.set(108, 11);
+  let angels = new Team('LAA', 'ALW', 108);
+  idToTeamIndex.set(108, 11);
   teams.push(angels);
-  let athletics = new Team('OAK', 'ALW');
-  codeToTeamIndex.set(133, 12);
+  let athletics = new Team('OAK', 'ALW', 133);
+  idToTeamIndex.set(133, 12);
   teams.push(athletics);
-  let mariners = new Team('SEA', 'ALW');
-  codeToTeamIndex.set(136, 13);
+  let mariners = new Team('SEA', 'ALW', 136);
+  idToTeamIndex.set(136, 13);
   teams.push(mariners);
-  let rangers = new Team('TEX', 'ALW');
-  codeToTeamIndex.set(140, 14);
+  let rangers = new Team('TEX', 'ALW', 140);
+  idToTeamIndex.set(140, 14);
   teams.push(rangers);
-  let braves = new Team('ATL', 'NLE');
-  codeToTeamIndex.set(144, 15);
+  let braves = new Team('ATL', 'NLE', 144);
+  idToTeamIndex.set(144, 15);
   teams.push(braves);
-  let marlins = new Team('MIA', 'NLE');
-  codeToTeamIndex.set(146, 16);
+  let marlins = new Team('MIA', 'NLE', 146);
+  idToTeamIndex.set(146, 16);
   teams.push(marlins);
-  let mets = new Team('NYM', 'NLE');
-  codeToTeamIndex.set(121, 17);
+  let mets = new Team('NYM', 'NLE', 121);
+  idToTeamIndex.set(121, 17);
   teams.push(mets);
-  let phillies = new Team('PHI', 'NLE');
-  codeToTeamIndex.set(143, 18);
+  let phillies = new Team('PHI', 'NLE', 143);
+  idToTeamIndex.set(143, 18);
   teams.push(phillies);
-  let nationals = new Team('WSH', 'NLE');
-  codeToTeamIndex.set(120, 19);
+  let nationals = new Team('WSH', 'NLE', 120);
+  idToTeamIndex.set(120, 19);
   teams.push(nationals);
-  let cubs = new Team('CHC', 'NLC');
-  codeToTeamIndex.set(112, 20);
+  let cubs = new Team('CHC', 'NLC', 112);
+  idToTeamIndex.set(112, 20);
   teams.push(cubs);
-  let reds = new Team('CIN', 'NLC');
-  codeToTeamIndex.set(113, 21);
+  let reds = new Team('CIN', 'NLC', 113);
+  idToTeamIndex.set(113, 21);
   teams.push(reds);
-  let brewers = new Team('MIL', 'NLC');
-  codeToTeamIndex.set(158, 22);
+  let brewers = new Team('MIL', 'NLC', 158);
+  idToTeamIndex.set(158, 22);
   teams.push(brewers);
-  let pirates = new Team('PIT', 'NLC');
-  codeToTeamIndex.set(134, 23);
+  let pirates = new Team('PIT', 'NLC', 134);
+  idToTeamIndex.set(134, 23);
   teams.push(pirates);
-  let cardinals = new Team('STL', 'NLC');
-  codeToTeamIndex.set(138, 24);
+  let cardinals = new Team('STL', 'NLC', 138);
+  idToTeamIndex.set(138, 24);
   teams.push(cardinals);
-  let diamondbacks = new Team('ARI', 'NLW');
-  codeToTeamIndex.set(109, 25);
+  let diamondbacks = new Team('ARI', 'NLW', 109);
+  idToTeamIndex.set(109, 25);
   teams.push(diamondbacks);
-  let rockies = new Team('COL', 'NLW');
-  codeToTeamIndex.set(115, 26);
+  let rockies = new Team('COL', 'NLW', 115);
+  idToTeamIndex.set(115, 26);
   teams.push(rockies);
-  let giants = new Team('SF', 'NLW');
-  codeToTeamIndex.set(137, 27);
+  let giants = new Team('SF', 'NLW', 137);
+  idToTeamIndex.set(137, 27);
   teams.push(giants);
-  let padres = new Team('SD', 'NLW');
-  codeToTeamIndex.set(135, 28);
+  let padres = new Team('SD', 'NLW', 135 );
+  idToTeamIndex.set(135, 28);
   teams.push(padres);
-  let dodgers = new Team('LAD', 'NLW');
-  codeToTeamIndex.set(119, 29);
+  let dodgers = new Team('LAD', 'NLW', 119);
+  idToTeamIndex.set(119, 29);
   teams.push(dodgers);
+}
+
+async function setCurrentRecords() {
+  const getData = async () => {
+    try {
+      const response = await axios.get(`${MLB_API_URL}/standings?leagueId=103,104&season=${CURRENT_YEAR}&standingsTypes=regularSeason`);
+      const records = response.data.records;
+      for (let i = 0; i < records.length; i++) {
+        const record = records[i];
+        for (let j = 0; j < record.teamRecords.length; j++) {
+          const teamRecord = record.teamRecords[j];
+          let teamId = teamRecord.team.id;
+          let index = idToTeamIndex.get(teamId);
+          teams[index].currentWins = teamRecord.wins;
+          teams[index].currentLosses = teamRecord.losses;
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  await getData();
 }
 
 function clearSeasonStats() {
@@ -326,19 +350,20 @@ function simulateRestOfSeason() {
 
 async function addToDB() {
   await TeamResult.deleteMany({});
-  for (let team of teams) {
+  for (let i = 0; i < teams.length; i++) {
+    //console.log(teams[i].currentWins);
     const genTeam = new TeamResult({
-      code: team.code,
-      division: team.division,
-      currentWins: team.currentWins,
-      currentLosses: team.currentLosses,
-      projWins: (team.totalWins / TOTAL_ITERATIONS) + team.currentWins,
-      projLosses: (team.totalLosses / TOTAL_ITERATIONS) + team.currentLosses,
-      playoffOdds: team.postApps / TOTAL_ITERATIONS,
-      divisionOdds: team.divisionWins / TOTAL_ITERATIONS,
-      WCOdds: team.WCApps / TOTAL_ITERATIONS,
-      pennantOdds: team.pennantWins / TOTAL_ITERATIONS,
-      championshipOdds: team.champWins / TOTAL_ITERATIONS});
+      code: teams[i].code,
+      division: teams[i].division,
+      currentWins: teams[i].currentWins,
+      currentLosses: teams[i].currentLosses,
+      projWins: (teams[i].totalWins / TOTAL_ITERATIONS) + teams[i].currentWins,
+      projLosses: (teams[i].totalLosses / TOTAL_ITERATIONS) + teams[i].currentLosses,
+      playoffOdds: teams[i].postApps / TOTAL_ITERATIONS,
+      divisionOdds: teams[i].divisionWins / TOTAL_ITERATIONS,
+      WCOdds: teams[i].WCApps / TOTAL_ITERATIONS,
+      pennantOdds: teams[i].pennantWins / TOTAL_ITERATIONS,
+      championshipOdds: teams[i].champWins / TOTAL_ITERATIONS});
     genTeam.save();
   }
 }
