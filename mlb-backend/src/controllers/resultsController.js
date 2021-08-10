@@ -12,7 +12,7 @@ export async function getResults(req, res, next) {
     for (const division of divisions) {
         for (let i = 0; i < 5; i++) {
             let result = await TeamResult.findOne({division: division})
-                .sort({playoffOdds: -1}).skip(i);
+                .sort({playoffOdds: -1, divisionOdds: -1, pennantOdds: -1}).skip(i);
             results.push(result);
         }
     }

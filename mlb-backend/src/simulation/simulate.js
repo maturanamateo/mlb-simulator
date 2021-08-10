@@ -11,6 +11,21 @@ const CURRENT_YEAR = new Date().getFullYear();
 const START_DATE_TIME = new Date(`03/15/${CURRENT_YEAR}`).getTime();
 const END_DATE_TIME = new Date(`10/15/${CURRENT_YEAR}`).getTime();
 const idToTeamIndex = new Map(); // easy lookups when doing games
+const TEAM_IDS = [
+  [110, 111, 139, 141, 147],
+  [145, 114, 116, 118, 142],
+  [117, 108, 133, 136, 140],
+  [144, 146, 121, 143, 120],
+  [112, 113, 158, 134, 138],
+  [109, 115, 137, 135, 119]
+]
+/*
+const ALE_TEAM_IDS = [110, 111, 139, 141, 147];
+const ALC_TEAM_IDS = [145, 114, 116, 118, 142];
+const ALW_TEAM_IDS = [117, 108, 133, 136, 140];
+const NLE_TEAM_IDS = [144, 146, 121, 143, 120];
+const NLC_TEAM_IDS = [112, 113, 158, 134, 138];
+const NLW_TEAM_IDS = [109, 115, 137, 135, 119]; */
 let teams = [];
 const TOTAL_ITERATIONS = 1;
 const MLB_API_URL = 'https://statsapi.mlb.com/api/v1';
@@ -380,6 +395,9 @@ async function simulateRestOfSeason() {
           const games = response.data.dates[i].games;
           for (let j = 0; j < games.length; j++) {
             const game = games[j];
+            if (game.seriesDescription != "Regular Season") {
+              continue;
+            }
             let teamID1 = game.teams.home.team.id;
             let teamID2 = game.teams.away.team.id;
             let result = compete(teamID1, teamID2);
@@ -400,7 +418,134 @@ async function simulateRestOfSeason() {
     date.setDate(date.getDate() + 1);
     time = date.getTime();
   }
+  runPostseason();
   clearSeasonStats();
+}
+
+function compareWins(id1, id2) {
+  let wins1 = teams[idToTeamIndex.get(id1)].currentWins + teams[idToTeamIndex.get(id1)].winsInSeason;
+  let wins2 = teams[idToTeamIndex.get(id2)].currentWins + teams[idToTeamIndex.get(id2)].winsInSeason;
+  if (wins1 > wins2) {
+    return -1;
+  } else if (wins1 < wins2) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+function runPostseason() {
+  let ALPost = [];
+  let NLPost = [];
+  let ALWCR = [];  /* 2,3 place teams in each division */
+  let NLWCR = [];
+  for (let i = 0; i < TEAM_IDS.length; i++) {
+    TEAM_IDS[i].sort(compareWins);
+    if (i < 3) {
+      ALPost.push(TEAM_IDS[i][0]);
+      teams[idToTeamIndex.get(TEAM_IDS[i][0])].divisionWins += 1;
+      ALWCR.push(TEAM_IDS[i][1]);
+      ALWCR.push(TEAM_IDS[i][2]);
+    } else {
+      NLPost.push(TEAM_IDS[i][0]);
+      teams[idToTeamIndex.get(TEAM_IDS[i][0])].divisionWins += 1;
+      NLWCR.push(TEAM_IDS[i][1]);
+      NLWCR.push(TEAM_IDS[i][2]);
+    }
+  }
+  ALPost.sort(compareWins);
+  NLPost.sort(compareWins);
+  ALWCR.sort(compareWins);
+  NLWCR.sort(compareWins);
+  for (let i = 0; i < 2; i++) {
+    teams[idToTeamIndex.get(ALWCR[i])].WCApps += 1;
+    teams[idToTeamIndex.get(NLWCR[i])].WCApps += 1;
+    ALPost.push(ALWCR[i]);
+    NLPost.push(NLWCR[i]);
+  }
+  for (let i = 0; i < ALPost.length; i++) {
+    teams[idToTeamIndex.get(ALPost[i])].postApps += 1;
+    teams[idToTeamIndex.get(NLPost[i])].postApps += 1;
+  }
+  let alwcLoser = runPostseasonSeries(ALPost[3], ALPost[4], 0);
+  ALPost.splice(ALPost.indexOf(alwcLoser), 1);
+  let nlwcLoser = runPostseasonSeries(ALPost[3], ALPost[4], 0);
+  NLPost.splice(NLPost.indexOf(nlwcLoser), 1);
+  let aldsLosers = [];
+  let nldsLosers = [];
+  aldsLosers.push(runPostseasonSeries(ALPost[0], ALPost[3], 1));
+  aldsLosers.push(runPostseasonSeries(ALPost[1], ALPost[2], 1));
+  nldsLosers.push(runPostseasonSeries(NLPost[0], NLPost[3], 1));
+  nldsLosers.push(runPostseasonSeries(NLPost[1], NLPost[2], 1));
+  console.log(ALPost);
+  console.log(NLPost);
+  console.log(aldsLosers);
+  console.log(nldsLosers);
+  for (let i = 0; i < aldsLosers.length; i++) {
+    ALPost.splice(ALPost.indexOf(aldsLosers[i]), 1);
+    NLPost.splice(NLPost.indexOf(nldsLosers[i]), 1);
+  }
+  console.log(ALPost);
+  console.log(NLPost);
+  let alWinner = runPostseasonSeries(ALPost[0], ALPost[1], 2);
+  let nlWinner = runPostseasonSeries(NLPost[0], NLPost[1], 2);
+  try {
+    teams[idToTeamIndex.get(alWinner)].pennantWins += 1;
+  } catch {
+    console.log(alWinner);
+    console.log(idToTeamIndex.get(alWinner));
+  }
+  teams[idToTeamIndex.get(nlWinner)].pennantWins += 1;
+  let wsHome = compareWins(alWinner, nlWinner);
+  let winner = 0;
+  if (wsHome == -1) {
+    winner = runPostseasonSeries(alWinner, nlWinner, 3);
+  } else {
+    winner = runPostseasonSeries(nlWinner, alWinner, 3);
+  }
+  teams[idToTeamIndex.get(winner)].champWins += 1;
+}
+
+function runPostseasonSeries(id1, id2, stage) {
+  /* @param
+   * id1: id of team w/ homeadvantage
+   * id2: id of other team
+   * post stage: 0 - WC, 1 - DS, 2 - CS, 3 - WS
+   * @return
+   * id of losing team in 0, 1. id of winner in 2,3
+   */
+  if (stage == 0) {
+    let res = compete(id1, id2);
+    return res == 0 ? id2 : id1;
+  } else if (stage == 1) {
+    let wins1 = 0;
+    let wins2 = 0;
+    compete(id1, id2) == 0 ? wins1++ : wins2++;
+    compete(id1, id2) == 0 ? wins1++ : wins2++;
+    compete(id2, id1) == 0 ? wins2++ : wins1++;
+    compete(id2, id1) == 0 ? wins2++ : wins1++;
+    compete(id1, id2) == 0 ? wins1++ : wins2++;
+    if (wins1 >= 3) {
+      return id2;
+    } else {
+      return id1;
+    }
+  } else {
+    let wins1 = 0;
+    let wins2 = 0;
+    compete(id1, id2) == 0 ? wins1++ : wins2++;
+    compete(id1, id2) == 0 ? wins1++ : wins2++;
+    compete(id2, id1) == 0 ? wins2++ : wins1++;
+    compete(id2, id1) == 0 ? wins2++ : wins1++;
+    compete(id2, id1) == 0 ? wins2++ : wins1++;
+    compete(id1, id2) == 0 ? wins1++ : wins2++;
+    compete(id1, id2) == 0 ? wins1++ : wins2++;
+    if (wins1 >= 4) {
+      return id1;
+    } else {
+      return id2;
+    }
+  }
 }
 
 function compete(id1, id2) {
@@ -421,11 +566,11 @@ async function addToDB() {
       currentLosses: teams[i].currentLosses,
       projWins: (teams[i].totalWins / TOTAL_ITERATIONS) + teams[i].currentWins,
       projLosses: (teams[i].totalLosses / TOTAL_ITERATIONS) + teams[i].currentLosses,
-      playoffOdds: teams[i].postApps / TOTAL_ITERATIONS,
-      divisionOdds: teams[i].divisionWins / TOTAL_ITERATIONS,
-      WCOdds: teams[i].WCApps / TOTAL_ITERATIONS,
-      pennantOdds: teams[i].pennantWins / TOTAL_ITERATIONS,
-      championshipOdds: teams[i].champWins / TOTAL_ITERATIONS});
+      playoffOdds: teams[i].postApps * 100 / TOTAL_ITERATIONS,
+      divisionOdds: teams[i].divisionWins * 100 / TOTAL_ITERATIONS,
+      WCOdds: teams[i].WCApps * 100 / TOTAL_ITERATIONS,
+      pennantOdds: teams[i].pennantWins * 100 / TOTAL_ITERATIONS,
+      championshipOdds: teams[i].champWins * 100 / TOTAL_ITERATIONS});
     genTeam.save();
   }
   console.log("Successfully Updated DB!");
