@@ -18,16 +18,10 @@ const TEAM_IDS = [
   [144, 146, 121, 143, 120],
   [112, 113, 158, 134, 138],
   [109, 115, 137, 135, 119]
-]
-/*
-const ALE_TEAM_IDS = [110, 111, 139, 141, 147];
-const ALC_TEAM_IDS = [145, 114, 116, 118, 142];
-const ALW_TEAM_IDS = [117, 108, 133, 136, 140];
-const NLE_TEAM_IDS = [144, 146, 121, 143, 120];
-const NLC_TEAM_IDS = [112, 113, 158, 134, 138];
-const NLW_TEAM_IDS = [109, 115, 137, 135, 119]; */
+];
 let teams = [];
-const TOTAL_ITERATIONS = 1;
+let remainingGames = [];
+const TOTAL_ITERATIONS = 1000;
 const MLB_API_URL = 'https://statsapi.mlb.com/api/v1';
 
 mongoose.connect(process.env.MONGODB_IP,
@@ -48,7 +42,11 @@ mongoose.connect(process.env.MONGODB_IP,
 async function runAll() {
   await setTeams();
   await setCurrentRecords();
+  await getRemainingGames();
   for (let i = 0; i < TOTAL_ITERATIONS; i++) {
+    if (i % 10 == 0) {
+      console.log(`Running Season ${i}`);
+    }
     await simulateRestOfSeason();
   }
   addToDB();
@@ -231,7 +229,7 @@ export class Team {
 
   async setRating() {
     // TODO
-    this.rating = 1500;
+    this.rating = 800 * Math.random() + 1100;
   }
 
   async getPlayers() {
@@ -371,6 +369,26 @@ async function setCurrentRecords() {
   await getData();
 }
 
+async function getRemainingGames() {
+  let date = new Date();
+  let time = date.getTime();
+  while (time >= START_DATE_TIME && time <= END_DATE_TIME) {
+    const getData = async () => {
+      try {
+        const formattedDate = ('0' + parseInt(date.getMonth() + 1)).slice(-2) + '/' +
+        ('0' + date.getDate()).slice(-2) + '/' + date.getFullYear();
+        const response = await axios.get(`${MLB_API_URL}/schedule/games/?sportId=1&date=${formattedDate}`);
+        remainingGames.push(response);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    await getData();
+    date.setDate(date.getDate() + 1);
+    time = date.getTime();
+  }
+}
+
 function clearSeasonStats() {
   for (let team of teams) {
     team.totalWins += team.winsInSeason;
@@ -382,41 +400,27 @@ function clearSeasonStats() {
 
 async function simulateRestOfSeason() {
   // simulate rest of season
-  let date = new Date();
-  let time = date.getTime();
-  while (time >= START_DATE_TIME && time <= END_DATE_TIME) {
-    const getData = async () => {
-      try {
-        const formattedDate = ('0' + parseInt(date.getMonth() + 1)).slice(-2) + '/' +
-        ('0' + date.getDate()).slice(-2) + '/' + date.getFullYear();
-        const response = await axios.get(`${MLB_API_URL}/schedule/games/?sportId=1&date=${formattedDate}`);
-        const dates = response.data.dates;
-        for (let i = 0; i < dates.length; i++) {
-          const games = response.data.dates[i].games;
-          for (let j = 0; j < games.length; j++) {
-            const game = games[j];
-            if (game.seriesDescription != "Regular Season") {
-              continue;
-            }
-            let teamID1 = game.teams.home.team.id;
-            let teamID2 = game.teams.away.team.id;
-            let result = compete(teamID1, teamID2);
-            if (result == 0) {
-              teams[idToTeamIndex.get(teamID1)].winsInSeason += 1;
-              teams[idToTeamIndex.get(teamID2)].lossesInSeason += 1;
-            } else {
-              teams[idToTeamIndex.get(teamID1)].lossesInSeason += 1;
-              teams[idToTeamIndex.get(teamID2)].winsInSeason += 1;
-            }
-          }
+  for (let k = 0; k < remainingGames.length; k++) {
+    const dates = remainingGames[k].data.dates;
+    for (let i = 0; i < dates.length; i++) {
+      const games = dates[i].games;
+      for (let j = 0; j < games.length; j++) {
+        const game = games[j];
+        if (game.seriesDescription != "Regular Season") {
+          continue;
         }
-      } catch (error) {
-        console.log(error);
+        let teamID1 = game.teams.home.team.id;
+        let teamID2 = game.teams.away.team.id;
+        let result = compete(teamID1, teamID2);
+        if (result == 0) {
+          teams[idToTeamIndex.get(teamID1)].winsInSeason += 1;
+          teams[idToTeamIndex.get(teamID2)].lossesInSeason += 1;
+        } else {
+            teams[idToTeamIndex.get(teamID1)].lossesInSeason += 1;
+            teams[idToTeamIndex.get(teamID2)].winsInSeason += 1;
+        }
       }
     }
-    await getData();
-    date.setDate(date.getDate() + 1);
-    time = date.getTime();
   }
   runPostseason();
   clearSeasonStats();
@@ -469,7 +473,7 @@ function runPostseason() {
   }
   let alwcLoser = runPostseasonSeries(ALPost[3], ALPost[4], 0);
   ALPost.splice(ALPost.indexOf(alwcLoser), 1);
-  let nlwcLoser = runPostseasonSeries(ALPost[3], ALPost[4], 0);
+  let nlwcLoser = runPostseasonSeries(NLPost[3], NLPost[4], 0);
   NLPost.splice(NLPost.indexOf(nlwcLoser), 1);
   let aldsLosers = [];
   let nldsLosers = [];
@@ -477,24 +481,12 @@ function runPostseason() {
   aldsLosers.push(runPostseasonSeries(ALPost[1], ALPost[2], 1));
   nldsLosers.push(runPostseasonSeries(NLPost[0], NLPost[3], 1));
   nldsLosers.push(runPostseasonSeries(NLPost[1], NLPost[2], 1));
-  console.log(ALPost);
-  console.log(NLPost);
-  console.log(aldsLosers);
-  console.log(nldsLosers);
   for (let i = 0; i < aldsLosers.length; i++) {
     ALPost.splice(ALPost.indexOf(aldsLosers[i]), 1);
     NLPost.splice(NLPost.indexOf(nldsLosers[i]), 1);
   }
-  console.log(ALPost);
-  console.log(NLPost);
   let alWinner = runPostseasonSeries(ALPost[0], ALPost[1], 2);
   let nlWinner = runPostseasonSeries(NLPost[0], NLPost[1], 2);
-  try {
-    teams[idToTeamIndex.get(alWinner)].pennantWins += 1;
-  } catch {
-    console.log(alWinner);
-    console.log(idToTeamIndex.get(alWinner));
-  }
   teams[idToTeamIndex.get(nlWinner)].pennantWins += 1;
   let wsHome = compareWins(alWinner, nlWinner);
   let winner = 0;
@@ -552,13 +544,19 @@ function compete(id1, id2) {
   // returns 0 if team1 wins, 1 if team2 wins
   // team1 is home team
   // TODO
-  return 0;
+  const rating1 = teams[idToTeamIndex.get(id1)].rating;
+  const rating2 = teams[idToTeamIndex.get(id2)].rating;
+  const rand = (rating1 + rating2) * Math.random();
+  if (rand < rating1) {
+    return 0;
+  } else {
+    return 1;
+  }
 }
 
 async function addToDB() {
   await TeamResult.deleteMany({});
   for (let i = 0; i < teams.length; i++) {
-    //console.log(teams[i].currentWins);
     const genTeam = new TeamResult({
       code: teams[i].code,
       division: teams[i].division,
