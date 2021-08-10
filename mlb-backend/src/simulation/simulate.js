@@ -204,17 +204,37 @@ export class Team {
     this.code = code;
     this.division = division;
     this.id = id;
-    this.getPlayers();
-    this.setRating();
+    this.setup();
   }
 
-  setRating() {
+  async setup() {
+    await this.getPlayers();
+    await this.setRating();
+  }
+
+  async setRating() {
     // TODO
     this.rating = 1500;
   }
 
-  getPlayers() {
-    // TODO
+  async getPlayers() {
+    const getData = async () => {
+      try {
+        const response = await axios.get(`${MLB_API_URL}/teams/${this.id}/roster`);
+        const roster = response.data.roster;
+        for (let i = 0; i < roster.length; i++) {
+          const player = roster[i];
+          if (player.position.code == "1") {
+            this.pitchers.push(player.person.id);
+          } else {
+            this.hitters.push(player.person.id);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    await getData();
   }
 }
 
