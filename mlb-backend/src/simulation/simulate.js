@@ -24,7 +24,8 @@ let remainingGames = [];
 const TOTAL_ITERATIONS = 1000;
 const MLB_API_URL = 'https://statsapi.mlb.com/api/v1';
 
-mongoose.connect(process.env.MONGODB_IP,
+export function populateProjDBToday() {
+  mongoose.connect(process.env.MONGODB_IP,
     {
       useUnifiedTopology: true,
       useNewUrlParser: true
@@ -37,7 +38,8 @@ mongoose.connect(process.env.MONGODB_IP,
       /* loadDummyData(); */
       runAll();
     }
-);
+  );
+}
 
 async function runAll() {
   await setTeams();
@@ -187,6 +189,9 @@ export class Pitcher {
 
   setRating() {
     this.rating = 100 * (10 - ((this.era + this.whip) / 2));
+    if (this.rating < 0) {
+      this.rating = 0;
+    }
   }
 }
 
@@ -262,6 +267,13 @@ export class Team {
       totalRating += this.hitterRatings[i];
     }
     this.hitterRating = totalRating / this.hitters.length;
+    if (this.pitcherRating < 250 || this.hitterRating < 250) {
+      console.log(this.code);
+      console.log(this.hitters);
+      console.log(this.pitchers);
+      console.log(this.hitterRatings);
+      console.log(this.pitcherRatings);
+    }
   }
 
   async setPlayerRatings() {
@@ -298,7 +310,7 @@ export class Team {
         for (let i = 0; i < response.data.people.length; i++) {
           const player = new Pitcher(response.data.people[i]);
           await player.setup();
-          this.hitterRatings.push(player.rating)
+          this.pitcherRatings.push(player.rating)
         }
       } catch (error) {
         console.log(error);
@@ -675,7 +687,7 @@ function getProbability(team1, team2, pitcher1Rating, pitcher2Rating) {
   // TEMP (WIP)
   const team1Rating = (pitcher1Rating + team1.pitcherRating + team1.hitterRating) / 3;
   const team2Rating = (pitcher2Rating + team2.pitcherRating + team2.hitterRating) / 3;
-  return (team1Rating - 250) / ((team2Rating - 250) + (team1Rating - 250));
+  return (team1Rating - 400) / ((team2Rating - 400) + (team1Rating - 400));
 }
 
 export async function simulateOneDate(id, date) {
@@ -689,7 +701,9 @@ export async function simulateOneDate(id, date) {
       const formattedDate = ('0' + parseInt(date.getMonth() + 1)).slice(-2) + '/' +
       ('0' + date.getDate()).slice(-2) + '/' + date.getFullYear();
       const response = await axios.get(`${MLB_API_URL}/schedule/games/?sportId=1&date=${formattedDate}&teamId=${id}`);
-      for (let i = 0; i < response.data.dates[0].totalGames; i++) {
+      console.log(`${MLB_API_URL}/schedule/games/?sportId=1&date=${formattedDate}&teamId=${id}`);
+      console.log(response.data.totalGames);
+      for (let i = 0; i < response.data.totalGames; i++) {
         const game = response.data.dates[0].games[i];
         const gameId = game.gamePk;
         const gameBox = await axios.get(`${MLB_API_URL}/game/${gameId}/boxscore`);
@@ -704,7 +718,7 @@ export async function simulateOneDate(id, date) {
         let startingPitcher2 = gameBox.data.teams.away.pitchers[0];
         let startingPitcher1R = team1.pitcherRatings[team1.pitchers.indexOf(startingPitcher1)];
         let startingPitcher2R = team2.pitcherRatings[team2.pitchers.indexOf(startingPitcher2)];
-        const prob = getProbability(team1, team2);
+        const prob = getProbability(team1, team2, startingPitcher1R, startingPitcher2R);
         const team1Res = [team1.code, team1.pitcherRating, team1.hitterRating, startingPitcher1R, prob];
         const team2Res = [team2.code, team2.pitcherRating, team2.hitterRating, startingPitcher2R, 1 - prob];
         gameResponses.push([team1Res, team2Res]);
@@ -714,6 +728,7 @@ export async function simulateOneDate(id, date) {
     }
   }
   await getData();
+  return gameResponses;
 }
 
 function formattedFloat(x) {

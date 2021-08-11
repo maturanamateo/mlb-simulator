@@ -11,7 +11,7 @@
     "lint": "./node_modules/.bin/eslint ./src",
     "pretty": "prettier --write '**/*.{js,json}' '!node_modules/**'",
     "postpretty": "yarn lint --fix",
-    "simulate": "babel-node src/simulation/simulate.js"
+    "simulate": "babel-node src/scripts/updateDB.js"
   },
   "dependencies": {
     "@babel/cli": "^7.14.8",
