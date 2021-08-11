@@ -41,6 +41,9 @@ mongoose.connect(process.env.MONGODB_IP,
 
 async function runAll() {
   await setTeams();
+  for (let i = 0; i < teams.length; i++) {
+    console.log(teams[i].rating);
+  }
   await setCurrentRecords();
   await getRemainingGames();
   for (let i = 0; i < TOTAL_ITERATIONS; i++) {
@@ -161,20 +164,32 @@ async function loadDummyData() {
 // Class code is placeholder
 export class Pitcher {
   rating;
-  hr9;
+  era;
+  whip;
 
-  constructor(playerId) {
-    this.playerId = playerId;
-    this.getStats();
-    this.setRating();
+  constructor(personJSON) {
+    this.playerId = personJSON.id;
+    this.personJSON = personJSON;
   }
 
-  getStats() {
-    this.hr9 = 1.4;
+  async setup() {
+    await this.getStats();
+    await this.setRating();
+  }
+
+  async getStats() {
+    if (this.personJSON.stats) {
+      const stats = this.personJSON.stats[0].splits[0].stat;
+      this.era = parseFloat(stats.era);
+      this.whip = parseFloat(stats.whip);
+    } else {
+      this.era = 4.5;
+      this.whip = 1.2;
+    }
   }
 
   setRating() {
-    this.rating = 1/(this.hr9);
+    this.rating = 100 * (10 - ((this.era + this.whip) / 2));
   }
 }
 
@@ -182,20 +197,27 @@ export class Position {
   rating;
   ops;
 
-  constructor(playerId) {
-    this.firstName = firstName;
-    this.lastName = lastName;
-    this.playerId = playerId;
-    this.getStats();
-    this.setRating();
+  constructor(personJSON) {
+    this.playerId = personJSON.id;
+    this.personJSON = personJSON;
   }
 
-  getStats() {
-    this.ops = .905;
+  async setup() {
+    await this.getStats();
+    await this.setRating();
+  }
+
+  async getStats() {
+    if (this.personJSON.stats) {
+      const stats = this.personJSON.stats[0].splits[0].stat;
+      this.ops = parseFloat(stats.ops);
+    } else {
+      this.ops = 650;
+    }
   }
 
   setRating() {
-    this.rating = ops;
+    this.rating = this.ops * 1000;
   }
 }
 
@@ -203,6 +225,8 @@ export class Team {
   rating; // setRating()
   pitchers = [];
   hitters = [];
+  pitcherRatings = [];
+  hitterRatings = [];
   currentWins = 0; // set in getRecord
   currentLosses = 0; // set in getRecord
   winsInSeason = 0;
@@ -219,17 +243,64 @@ export class Team {
     this.code = code;
     this.division = division;
     this.id = id;
-    this.setup();
   }
 
   async setup() {
     await this.getPlayers();
+    await this.setPlayerRatings();
     await this.setRating();
   }
 
   async setRating() {
-    // TODO
-    this.rating = 800 * Math.random() + 1100;
+    let totalRating = 0;
+    for (let i = 0; i < this.pitcherRatings.length; i++) {
+      totalRating += this.pitcherRatings[i];
+    }
+    for (let i = 0; i < this.hitterRatings.length; i++) {
+      totalRating += this.hitterRatings[i];
+    }
+    this.rating = (totalRating / (this.pitchers.length + this.hitters.length)) - 400;
+  }
+
+  async setPlayerRatings() {
+    const statHydrateH = `group=[hitting],type=[season],season=${CURRENT_YEAR}`;
+    let hitterIds = "";
+    for (let i = 0; i < this.hitters.length; i++) {
+      hitterIds += String(this.hitters[i]);
+      hitterIds += ',';
+    }
+    const getDataHitters = async () => {
+      try {
+        const response = await axios.get(`${MLB_API_URL}/people?personIds=${hitterIds}&hydrate=stats(${statHydrateH})`);
+        for (let i = 0; i < response.data.people.length; i++) {
+          const player = new Position(response.data.people[i]);
+          await player.setup();
+          this.hitterRatings.push(player.rating);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    await getDataHitters();
+    const statHydrateP = `group=[pitching],type=[season],season=${CURRENT_YEAR}`;
+    let pitcherIds = "";
+    for (let i = 0; i < this.pitchers.length; i++) {
+      pitcherIds += String(this.pitchers[i]);
+      pitcherIds += ',';
+    }
+    const getDataPitchers = async () => {
+      try {
+        const response = await axios.get(`${MLB_API_URL}/people?personIds=${pitcherIds}&hydrate=stats(${statHydrateP})`);
+        for (let i = 0; i < response.data.people.length; i++) {
+          const player = new Pitcher(response.data.people[i]);
+          await player.setup();
+          this.hitterRatings.push(player.rating)
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    await getDataPitchers();
   }
 
   async getPlayers() {
@@ -253,96 +324,126 @@ export class Team {
   }
 }
 
-function setTeams() {
+async function setTeams() {
   // ids from mlbstatsapi
   let yankees = new Team('NYY', 'ALE', 147);
+  await yankees.setup();
   idToTeamIndex.set(147, 0);
   teams.push(yankees);
   let redsox = new Team('BOS', 'ALE', 111);
+  await redsox.setup();
   idToTeamIndex.set(111, 1);
   teams.push(redsox);
   let jays = new Team('TOR', 'ALE', 141);
+  await jays.setup();
   idToTeamIndex.set(141, 2);
   teams.push(jays);
   let rays = new Team('TB', 'ALE', 139);
+  await rays.setup();
   idToTeamIndex.set(139, 3);
   teams.push(rays);
   let orioles = new Team('BAL', 'ALE', 110);
+  await orioles.setup();
   idToTeamIndex.set(110, 4);
   teams.push(orioles);
   let whitesox = new Team('CWS', 'ALC', 145);
+  await whitesox.setup();
   idToTeamIndex.set(145, 5);
   teams.push(whitesox);
   let indians = new Team('CLE', 'ALC', 114);
+  await indians.setup();
   idToTeamIndex.set(114, 6);
   teams.push(indians);
   let tigers = new Team('DET', 'ALC', 116);
+  await tigers.setup();
   idToTeamIndex.set(116, 7);
   teams.push(tigers);
   let royals = new Team('KC', 'ALC', 118);
+  await royals.setup();
   idToTeamIndex.set(118, 8);
   teams.push(royals);
   let twins = new Team('MIN', 'ALC', 142);
+  await twins.setup();
   idToTeamIndex.set(142, 9);
   teams.push(twins);
   let astros = new Team('HOU', 'ALW', 117);
+  await astros.setup();
   idToTeamIndex.set(117, 10);
   teams.push(astros);
   let angels = new Team('LAA', 'ALW', 108);
+  await angels.setup();
   idToTeamIndex.set(108, 11);
   teams.push(angels);
   let athletics = new Team('OAK', 'ALW', 133);
+  await athletics.setup();
   idToTeamIndex.set(133, 12);
   teams.push(athletics);
   let mariners = new Team('SEA', 'ALW', 136);
+  await mariners.setup();
   idToTeamIndex.set(136, 13);
   teams.push(mariners);
   let rangers = new Team('TEX', 'ALW', 140);
+  await rangers.setup();
   idToTeamIndex.set(140, 14);
   teams.push(rangers);
   let braves = new Team('ATL', 'NLE', 144);
+  await braves.setup();
   idToTeamIndex.set(144, 15);
   teams.push(braves);
   let marlins = new Team('MIA', 'NLE', 146);
+  await marlins.setup();
   idToTeamIndex.set(146, 16);
   teams.push(marlins);
   let mets = new Team('NYM', 'NLE', 121);
+  await mets.setup();
   idToTeamIndex.set(121, 17);
   teams.push(mets);
   let phillies = new Team('PHI', 'NLE', 143);
+  await phillies.setup();
   idToTeamIndex.set(143, 18);
   teams.push(phillies);
   let nationals = new Team('WSH', 'NLE', 120);
+  await nationals.setup();
   idToTeamIndex.set(120, 19);
   teams.push(nationals);
   let cubs = new Team('CHC', 'NLC', 112);
+  await cubs.setup();
   idToTeamIndex.set(112, 20);
   teams.push(cubs);
   let reds = new Team('CIN', 'NLC', 113);
+  await reds.setup();
   idToTeamIndex.set(113, 21);
   teams.push(reds);
   let brewers = new Team('MIL', 'NLC', 158);
+  await brewers.setup();
   idToTeamIndex.set(158, 22);
   teams.push(brewers);
   let pirates = new Team('PIT', 'NLC', 134);
+  await pirates.setup();
   idToTeamIndex.set(134, 23);
   teams.push(pirates);
   let cardinals = new Team('STL', 'NLC', 138);
+  await cardinals.setup();
   idToTeamIndex.set(138, 24);
   teams.push(cardinals);
   let diamondbacks = new Team('ARI', 'NLW', 109);
+  await diamondbacks.setup();
   idToTeamIndex.set(109, 25);
   teams.push(diamondbacks);
   let rockies = new Team('COL', 'NLW', 115);
+  await rockies.setup();
   idToTeamIndex.set(115, 26);
   teams.push(rockies);
   let giants = new Team('SF', 'NLW', 137);
+  await giants.setup();
   idToTeamIndex.set(137, 27);
   teams.push(giants);
   let padres = new Team('SD', 'NLW', 135 );
+  await padres.setup();
   idToTeamIndex.set(135, 28);
   teams.push(padres);
   let dodgers = new Team('LAD', 'NLW', 119);
+  await dodgers.setup();
   idToTeamIndex.set(119, 29);
   teams.push(dodgers);
 }
@@ -487,6 +588,7 @@ function runPostseason() {
   }
   let alWinner = runPostseasonSeries(ALPost[0], ALPost[1], 2);
   let nlWinner = runPostseasonSeries(NLPost[0], NLPost[1], 2);
+  teams[idToTeamIndex.get(alWinner)].pennantWins += 1;
   teams[idToTeamIndex.get(nlWinner)].pennantWins += 1;
   let wsHome = compareWins(alWinner, nlWinner);
   let winner = 0;
@@ -554,6 +656,10 @@ function compete(id1, id2) {
   }
 }
 
+function formattedFloat(x) {
+  return parseFloat(x.toPrecision(5));
+}
+
 async function addToDB() {
   await TeamResult.deleteMany({});
   for (let i = 0; i < teams.length; i++) {
@@ -562,13 +668,13 @@ async function addToDB() {
       division: teams[i].division,
       currentWins: teams[i].currentWins,
       currentLosses: teams[i].currentLosses,
-      projWins: (teams[i].totalWins / TOTAL_ITERATIONS) + teams[i].currentWins,
-      projLosses: (teams[i].totalLosses / TOTAL_ITERATIONS) + teams[i].currentLosses,
-      playoffOdds: teams[i].postApps * 100 / TOTAL_ITERATIONS,
-      divisionOdds: teams[i].divisionWins * 100 / TOTAL_ITERATIONS,
-      WCOdds: teams[i].WCApps * 100 / TOTAL_ITERATIONS,
-      pennantOdds: teams[i].pennantWins * 100 / TOTAL_ITERATIONS,
-      championshipOdds: teams[i].champWins * 100 / TOTAL_ITERATIONS});
+      projWins: formattedFloat((teams[i].totalWins / TOTAL_ITERATIONS) + teams[i].currentWins),
+      projLosses: formattedFloat((teams[i].totalLosses / TOTAL_ITERATIONS) + teams[i].currentLosses),
+      playoffOdds: formattedFloat(teams[i].postApps * 100 / TOTAL_ITERATIONS),
+      divisionOdds: formattedFloat(teams[i].divisionWins * 100 / TOTAL_ITERATIONS),
+      WCOdds: formattedFloat(teams[i].WCApps * 100 / TOTAL_ITERATIONS),
+      pennantOdds: formattedFloat(teams[i].pennantWins * 100 / TOTAL_ITERATIONS),
+      championshipOdds: formattedFloat(teams[i].champWins * 100 / TOTAL_ITERATIONS)});
     genTeam.save();
   }
   console.log("Successfully Updated DB!");
