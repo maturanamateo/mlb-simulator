@@ -209,7 +209,8 @@ export class Position {
 
   async getStats() {
     if (this.personJSON.stats) {
-      const stats = this.personJSON.stats[0].splits[0].stat;
+      let curYearIndex = this.personJSON.stats[0].splits.length - 1;
+      const stats = this.personJSON.stats[0].splits[curYearIndex].stat;
       this.ops = parseFloat(stats.ops);
     } else {
       this.ops = 650;
@@ -263,7 +264,8 @@ export class Team {
   }
 
   async setPlayerRatings() {
-    const statHydrateH = `group=[hitting],type=[season],season=${CURRENT_YEAR}`;
+    const RELEVANT_SEASONS = `${CURRENT_YEAR - 2},${CURRENT_YEAR - 1},${CURRENT_YEAR}`;
+    const statHydrateH = `group=[hitting],type=[season],seasons=[${RELEVANT_SEASONS}]`;
     let hitterIds = "";
     for (let i = 0; i < this.hitters.length; i++) {
       hitterIds += String(this.hitters[i]);
