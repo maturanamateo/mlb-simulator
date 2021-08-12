@@ -29,6 +29,7 @@ export class HomeComponent implements OnInit {
       }
     );
   }
+  
 
   getDivisions(): void {
     for (let i = 0; i < 5; i++) {
