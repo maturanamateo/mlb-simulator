@@ -150,16 +150,17 @@ export class Position {
 
   async getStats() {
     if (this.personJSON.stats) {
-      let curYearIndex = this.personJSON.stats[0].splits.length - 1;
-      let curYear = this.personJSON.stats[0].splits[curYearIndex].season;
+      // batting stats
+      let curYearIndex = this.personJSON.stats[1].splits.length - 1;
+      let curYear = this.personJSON.stats[1].splits[curYearIndex].season;
       let targetIndex = 0;
       for (let i = 0; i < curYearIndex + 1; i++) {
-        if (this.personJSON.stats[0].splits[i].season == curYear) {
+        if (this.personJSON.stats[1].splits[i].season == curYear) {
           targetIndex = i;
           break;
         }
       }
-      const stats = this.personJSON.stats[0].splits[targetIndex].stat;
+      const stats = this.personJSON.stats[1].splits[targetIndex].stat;
       this.ops = parseFloat(stats.ops);
     } else {
       this.ops = 650;
