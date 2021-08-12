@@ -121,8 +121,8 @@ export class Pitcher {
       this.era = parseFloat(stats.era);
       this.whip = parseFloat(stats.whip);
     } else {
-      this.era = 5;
-      this.whip = 3.5;
+      this.era = 6.5;
+      this.whip = 2;
     }
   }
 
@@ -163,7 +163,7 @@ export class Position {
       const stats = this.personJSON.stats[0].splits[targetIndex].stat;
       this.ops = parseFloat(stats.ops);
     } else {
-      this.ops = 575;
+      this.ops = .575;
     }
   }
 
@@ -633,9 +633,12 @@ function getProbability(team1, team2, pitcher1Rating, pitcher2Rating) {
     pitcher2Rating = team2.pitcherRating;
   }
   // TEMP (WIP)
-  const team1Rating = (pitcher1Rating + team1.pitcherRating + team1.hitterRating) / 3;
-  const team2Rating = (pitcher2Rating + team2.pitcherRating + team2.hitterRating) / 3;
-  return (team1Rating - 450) / ((team2Rating - 450) + (team1Rating - 450));
+  const team1Rating = ((pitcher1Rating + team1.pitcherRating) / 2 + team1.hitterRating) / 2;
+  const team2Rating = ((pitcher2Rating + team2.pitcherRating) / 2 + team2.hitterRating) / 2;
+  if (team1Rating <= 400 || team2Rating <= 400) {
+    console.log("LESS THAN 400 WARNING");
+  }
+  return (team1Rating - 400) / ((team2Rating - 400) + (team1Rating - 400));
 }
 
 export async function simulateOneDate(id, date) {
