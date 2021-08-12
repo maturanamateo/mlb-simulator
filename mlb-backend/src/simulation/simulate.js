@@ -121,8 +121,8 @@ export class Pitcher {
       this.era = parseFloat(stats.era);
       this.whip = parseFloat(stats.whip);
     } else {
-      this.era = 4.5;
-      this.whip = 1.2;
+      this.era = 5;
+      this.whip = 3.5;
     }
   }
 
@@ -163,7 +163,7 @@ export class Position {
       const stats = this.personJSON.stats[0].splits[targetIndex].stat;
       this.ops = parseFloat(stats.ops);
     } else {
-      this.ops = 650;
+      this.ops = 575;
     }
   }
 
@@ -246,7 +246,7 @@ export class Team {
       }
     }
     await getDataHitters();
-    const statHydrateP = `group=[pitching],type=[season],season=${RELEVANT_SEASONS}`;
+    const statHydrateP = `group=[pitching],type=[season],seasons=[${RELEVANT_SEASONS}]`;
     let pitcherIds = "";
     for (let i = 0; i < this.pitchers.length; i++) {
       pitcherIds += String(this.pitchers[i]);
@@ -664,6 +664,9 @@ export async function simulateOneDate(id, date) {
         await team2.setup();
         let startingPitcher1 = gameBox.data.teams.home.pitchers[0];
         let startingPitcher2 = gameBox.data.teams.away.pitchers[0];
+        if (i == 0) {
+          console.log(startingPitcher2);
+        }
         let startingPitcher1R = team1.pitcherRatings[team1.pitchers.indexOf(startingPitcher1)];
         let startingPitcher2R = team2.pitcherRatings[team2.pitchers.indexOf(startingPitcher2)];
         const prob = getProbability(team1, team2, startingPitcher1R, startingPitcher2R);
