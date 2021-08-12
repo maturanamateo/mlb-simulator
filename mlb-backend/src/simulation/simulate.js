@@ -209,7 +209,7 @@ export class Team {
   async setPlayerRatings() {
     const curYear = this.date.getFullYear();
     const RELEVANT_SEASONS = `${curYear - 2},${curYear - 1},${curYear}`;
-    const statHydrateH = `group=[hitting],type=[season],seasons=[${RELEVANT_SEASONS}]`;
+    const statHydrateH = `group=[hitting,fielding],type=[season],seasons=[${RELEVANT_SEASONS}]`;
     let hitterIds = "";
     for (let i = 0; i < this.hitters.length; i++) {
       hitterIds += String(this.hitters[i]);
