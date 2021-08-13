@@ -22,7 +22,7 @@ const TEAM_IDS = [
 ];
 let teams = [];
 let remainingGames = [];
-const TOTAL_ITERATIONS = 1000;
+const TOTAL_ITERATIONS = 10000;
 const MLB_API_URL = 'https://statsapi.mlb.com/api/v1';
 
 export function populateProjDBToday() {
@@ -95,8 +95,13 @@ async function loadDummyData() {
 // Class code is placeholder
 export class Pitcher {
   rating;
-  era;
+  k9;
+  hr9;
   whip;
+  gamesStarted;
+  gamesPitched;
+  set = false;
+  iterations = 0;
 
   constructor(personJSON) {
     this.playerId = personJSON.id;
@@ -112,33 +117,54 @@ export class Pitcher {
     if (this.personJSON.stats) {
       let curYearIndex = this.personJSON.stats[0].splits.length - 1;
       let curYear = this.personJSON.stats[0].splits[curYearIndex].season;
+      let endYear = parseFloat(curYear) - 2;
       let targetIndex = 0;
-      for (let i = 0; i < curYearIndex + 1; i++) {
-        if (this.personJSON.stats[0].splits[i].season == curYear) {
-          targetIndex = i;
-          break;
+      while (parseFloat(curYear) >= endYear && !this.set) {
+        for (let i = 0; i < curYearIndex + 1; i++) {
+          if (this.personJSON.stats[0].splits[i].season == curYear) {
+            targetIndex = i;
+            break;
+          }
+        }
+        const stats = this.personJSON.stats[0].splits[targetIndex].stat;
+        this.k9 = Math.max(.6, parseFloat(stats.strikeoutsPer9Inn));
+        this.hr9 = Math.max(.6, parseFloat(stats.homeRunsPer9));
+        this.whip = parseFloat(stats.whip);
+        this.gamesStarted = stats.gamesStarted;
+        this.gamesPitched = stats.gamesPitched;
+        if (this.gamesStarted >= 4 || this.gamesPitched >= 10) {
+          this.set = true;
+        } else {
+          curYear = (parseFloat(curYear) - 1).toString();
+          this.iterations++;
         }
       }
-      const stats = this.personJSON.stats[0].splits[targetIndex].stat;
-      this.era = parseFloat(stats.era);
-      this.whip = parseFloat(stats.whip);
-    } else {
-      this.era = 6.5;
-      this.whip = 2;
     }
   }
 
   setRating() {
-    this.rating = 100 * (10 - ((this.era + this.whip) / 2));
-    if (this.rating < 0) {
-      this.rating = 0;
+    if (!this.set) {
+      this.rating = .75;
+    } else {
+      this.rating = Math.pow((.3 * Math.pow(this.k9 / 8, 1/3) + .5 * Math.pow(1.3 / this.whip, 1/3) + .2 * Math.pow(1.2 / this.hr9, 1/3)), 2);
+      if (this.iterations == 1) {
+        this.rating *= .95;
+      } else if (this.iterations == 2) {
+        this.rating *= .85;
+      }
     }
   }
 }
 
 export class Position {
   rating;
-  ops;
+  obp;
+  slg;
+  babip;
+  stolenBases;
+  atBats;
+  set = false;
+  iterations = 0;
 
   constructor(personJSON) {
     this.playerId = personJSON.id;
@@ -155,22 +181,43 @@ export class Position {
       // batting stats
       let curYearIndex = this.personJSON.stats[0].splits.length - 1;
       let curYear = this.personJSON.stats[0].splits[curYearIndex].season;
+      let endYear = parseFloat(curYear) - 2;
       let targetIndex = 0;
-      for (let i = 0; i < curYearIndex + 1; i++) {
-        if (this.personJSON.stats[0].splits[i].season == curYear) {
-          targetIndex = i;
-          break;
+      while (parseFloat(curYear) >= endYear && !this.set) {
+        for (let i = 0; i < curYearIndex + 1; i++) {
+          if (this.personJSON.stats[0].splits[i].season == curYear) {
+            targetIndex = i;
+            break;
+          }
+        }
+        const stats = this.personJSON.stats[0].splits[targetIndex].stat;
+        this.obp = parseFloat(stats.obp);
+        this.slg = parseFloat(stats.slg);
+        this.babip = parseFloat(stats.babip);
+        this.stolenBases = stats.stolenBases;
+        this.atBats = stats.atBats;
+        if (this.atBats >= 50) {
+          this.set = true;
+        } else {
+          curYear = (parseFloat(curYear) - 1).toString();
+          this.iterations++;
         }
       }
-      const stats = this.personJSON.stats[0].splits[targetIndex].stat;
-      this.ops = parseFloat(stats.ops);
-    } else {
-      this.ops = .575;
     }
   }
 
   setRating() {
-    this.rating = this.ops * 1000;
+    if (!this.set) {
+      this.rating = .75;
+    } else { 
+      const babipMultiplier = Math.pow(.300 / this.babip, 1/3);
+      this.rating = (babipMultiplier) * (.7 * (this.obp / .325) + .3 * (this.slg / .410)) + (this.stolenBases * .001);
+      if (this.iterations == 1) {
+        this.rating *= .95;
+      } else if (this.iterations == 2) {
+        this.rating *= .85;
+      }
+    }
   }
 }
 
@@ -217,13 +264,6 @@ export class Team {
       totalRating += this.hitterRatings[i];
     }
     this.hitterRating = totalRating / this.hitters.length;
-    if (this.pitcherRating < 250 || this.hitterRating < 250) {
-      console.log(this.code);
-      console.log(this.hitters);
-      console.log(this.pitchers);
-      console.log(this.hitterRatings);
-      console.log(this.pitcherRatings);
-    }
   }
 
   async setPlayerRatings() {
@@ -635,12 +675,9 @@ function getProbability(team1, team2, pitcher1Rating, pitcher2Rating) {
     pitcher2Rating = team2.pitcherRating;
   }
   // TEMP (WIP)
-  const team1Rating = ((pitcher1Rating + team1.pitcherRating) / 2 + team1.hitterRating) / 2;
-  const team2Rating = ((pitcher2Rating + team2.pitcherRating) / 2 + team2.hitterRating) / 2;
-  if (team1Rating <= 400 || team2Rating <= 400) {
-    console.log("LESS THAN 400 WARNING");
-  }
-  return (team1Rating - 400) / ((team2Rating - 400) + (team1Rating - 400));
+  const team1Rating = ((pitcher1Rating + team1.pitcherRating) / 2 + team1.hitterRating) / 2 + .0334;
+  const team2Rating = ((pitcher2Rating + team2.pitcherRating) / 2 + team2.hitterRating) / 2 - .0334;
+  return Math.pow(team1Rating, 3) / (Math.pow(team2Rating, 3) + Math.pow(team1Rating, 3));
 }
 
 export async function simulateOneDate(id, date) {
