@@ -1,0 +1,9 @@
+.date {
+    font-size: 50px;
+    text-decoration-line: underline;
+}
+
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}

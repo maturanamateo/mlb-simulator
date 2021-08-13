@@ -20,3 +20,15 @@ export interface Result {
     pennantOdds: number;
     championshipOdds: number;
 }
+
+interface TeamGame {
+    name: string;
+    pitchingRating: number;
+    hittingRating: number;
+    startingPitcherRating: number;
+    probability: number;
+}
+
+export interface DateProjections {
+    games: Array<Array<TeamGame>>;
+}

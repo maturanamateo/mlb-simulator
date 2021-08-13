@@ -706,14 +706,14 @@ export async function simulateToday(date = new Date()) {
             pitchingRating: formattedFloat(gameResponse[0][1]),
             hittingRating: formattedFloat(gameResponse[0][2]),
             startingPitcherRating: formattedFloat(gameResponse[0][3]),
-            probability: formattedFloat(gameResponse[0][4])
+            probability: formattedFloat(100 * gameResponse[0][4])
           },
           {
             name: gameResponse[1][0],
             pitchingRating: formattedFloat(gameResponse[1][1]),
             hittingRating: formattedFloat(gameResponse[1][2]),
             startingPitcherRating: formattedFloat(gameResponse[1][3]),
-            probability: formattedFloat(gameResponse[1][4])
+            probability: formattedFloat(100 * gameResponse[1][4])
           }
         ]);
       }
@@ -731,7 +731,7 @@ export async function simulateToday(date = new Date()) {
 }
 
 function formattedFloat(x) {
-  return parseFloat(x.toPrecision(6));
+  return parseFloat(x.toPrecision(5));
 }
 
 async function addToDB() {

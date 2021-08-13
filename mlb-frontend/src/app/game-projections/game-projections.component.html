@@ -1,0 +1,32 @@
+<div class = "date">
+    {{currentDate}}
+</div>
+<div *ngFor="let game of games">
+    <table style="width:50%">
+        <tr>
+            <th class="header">
+                Team
+            </th>
+            <th class="header">
+                Pitching Rating
+            </th>
+            <th class="header">
+                Hitting Rating
+            </th>
+            <th class="header">
+                Starting Pitcher Rating
+            </th>
+            <th class="header">
+                Win Probability
+            </th>
+        </tr>
+        <tr *ngFor="let team of game">
+            <td> {{ team.name }} </td>
+            <td> {{ team.pitchingRating }} </td>
+            <td> {{ team.hittingRating }} </td>
+            <td> {{ team.startingPitcherRating }} </td>
+            <td> {{ team.probability }} </td>
+        </tr> 
+    </table>
+    <br>
+</div>
