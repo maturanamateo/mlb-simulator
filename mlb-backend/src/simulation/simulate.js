@@ -675,9 +675,9 @@ function getProbability(team1, team2, pitcher1Rating, pitcher2Rating) {
     pitcher2Rating = team2.pitcherRating;
   }
   // TEMP (WIP)
-  const team1Rating = ((pitcher1Rating + team1.pitcherRating) / 2 + team1.hitterRating) / 2 + .0334;
-  const team2Rating = ((pitcher2Rating + team2.pitcherRating) / 2 + team2.hitterRating) / 2 - .0334;
-  return Math.pow(team1Rating, 3) / (Math.pow(team2Rating, 3) + Math.pow(team1Rating, 3));
+  const team1Rating = ((pitcher1Rating + team1.pitcherRating) / 2 + team1.hitterRating) / 2 + .0501;
+  const team2Rating = ((pitcher2Rating + team2.pitcherRating) / 2 + team2.hitterRating) / 2 - .0501;
+  return Math.pow(team1Rating, 2) / (Math.pow(team2Rating, 2) + Math.pow(team1Rating, 2));
 }
 
 export async function simulateOneDate(id, date) {
