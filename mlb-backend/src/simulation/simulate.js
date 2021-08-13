@@ -1,5 +1,6 @@
 import { TeamResult } from '../models/TeamResult';
 import { DateResult } from '../models/DateResult';
+import { DateProjection } from '../models/DateProjection';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
@@ -52,6 +53,7 @@ async function runAll() {
     await simulateRestOfSeason();
   }
   addToDB();
+  simulateToday();
 }
 
 async function loadDummyData() {
@@ -656,26 +658,8 @@ export async function simulateOneDate(id, date) {
       console.log(response.data.totalGames);
       for (let i = 0; i < response.data.totalGames; i++) {
         const game = response.data.dates[0].games[i];
-        const gameId = game.gamePk;
-        const gameBox = await axios.get(`${MLB_API_URL}/game/${gameId}/boxscore`);
-        const id1  = game.teams.home.team.id;
-        const id2 = game.teams.away.team.id;
-        // fix divisions later (TODO)
-        let team1 = new Team(game.teams.home.team.name, "ALE", id1, date);
-        await team1.setup();
-        let team2 = new Team(game.teams.away.team.name, "ALE", id2, date);
-        await team2.setup();
-        let startingPitcher1 = gameBox.data.teams.home.pitchers[0];
-        let startingPitcher2 = gameBox.data.teams.away.pitchers[0];
-        if (i == 0) {
-          console.log(startingPitcher2);
-        }
-        let startingPitcher1R = team1.pitcherRatings[team1.pitchers.indexOf(startingPitcher1)];
-        let startingPitcher2R = team2.pitcherRatings[team2.pitchers.indexOf(startingPitcher2)];
-        const prob = getProbability(team1, team2, startingPitcher1R, startingPitcher2R);
-        const team1Res = [team1.code, team1.pitcherRating, team1.hitterRating, startingPitcher1R, prob];
-        const team2Res = [team2.code, team2.pitcherRating, team2.hitterRating, startingPitcher2R, 1 - prob];
-        gameResponses.push([team1Res, team2Res]);
+        const gameResponse = await simulateOneGame(game, date);
+        gameResponses.push(gameResponse);
       }
     } catch (error) {
       console.log(error);
@@ -685,8 +669,69 @@ export async function simulateOneDate(id, date) {
   return gameResponses;
 }
 
+async function simulateOneGame(game, date) {
+  const gameId = game.gamePk;
+  const gameBox = await axios.get(`${MLB_API_URL}/game/${gameId}/boxscore`);
+  const id1  = game.teams.home.team.id;
+  const id2 = game.teams.away.team.id;
+  // fix divisions later (TODO)
+  let team1 = new Team(game.teams.home.team.name, "ALE", id1, date);
+  await team1.setup();
+  let team2 = new Team(game.teams.away.team.name, "ALE", id2, date);
+  await team2.setup();
+  let startingPitcher1 = gameBox.data.teams.home.pitchers[0];
+  let startingPitcher2 = gameBox.data.teams.away.pitchers[0];
+  let startingPitcher1R = team1.pitcherRatings[team1.pitchers.indexOf(startingPitcher1)];
+  let startingPitcher2R = team2.pitcherRatings[team2.pitchers.indexOf(startingPitcher2)];
+  const prob = getProbability(team1, team2, startingPitcher1R, startingPitcher2R);
+  const team1Res = [team1.code, team1.pitcherRating, team1.hitterRating, startingPitcher1R, prob];
+  const team2Res = [team2.code, team2.pitcherRating, team2.hitterRating, startingPitcher2R, 1 - prob];
+  return [team1Res, team2Res];
+}
+
+export async function simulateToday(date = new Date()) {
+  await DateProjection.deleteMany({});
+  let gameResponses = [];
+  const getData = async () => {
+    try {
+      const formattedDate = ('0' + parseInt(date.getMonth() + 1)).slice(-2) + '/' +
+      ('0' + date.getDate()).slice(-2) + '/' + date.getFullYear();
+      const response = await axios.get(`${MLB_API_URL}/schedule/games/?sportId=1&date=${formattedDate}`);
+      for (let i = 0; i < response.data.totalGames; i++) {
+        const game = response.data.dates[0].games[i];
+        const gameResponse = await simulateOneGame(game, date);
+        gameResponses.push([
+          {
+            name: gameResponse[0][0],
+            pitchingRating: formattedFloat(gameResponse[0][1]),
+            hittingRating: formattedFloat(gameResponse[0][2]),
+            startingPitcherRating: formattedFloat(gameResponse[0][3]),
+            probability: formattedFloat(gameResponse[0][4])
+          },
+          {
+            name: gameResponse[1][0],
+            pitchingRating: formattedFloat(gameResponse[1][1]),
+            hittingRating: formattedFloat(gameResponse[1][2]),
+            startingPitcherRating: formattedFloat(gameResponse[1][3]),
+            probability: formattedFloat(gameResponse[1][4])
+          }
+        ]);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  await getData();
+  const todayData = new DateProjection({
+    date: date, 
+    games: gameResponses
+  });
+  todayData.save();
+  console.log("Updated DB With Today's Projections!")
+}
+
 function formattedFloat(x) {
-  return parseFloat(x.toPrecision(5));
+  return parseFloat(x.toPrecision(6));
 }
 
 async function addToDB() {

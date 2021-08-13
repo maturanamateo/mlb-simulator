@@ -1,5 +1,6 @@
 import { TeamResult } from '../models/TeamResult';
 import { DateResult } from '../models/DateResult';
+import { DateProjection } from '../models/DateProjection';
 import { simulateOneDate } from '../simulation/simulate';
 import { Types } from 'mongoose';
 
@@ -41,4 +42,14 @@ export async function getTeamResultDate(req, res, next) {
     const date = new Date(dateString.substring(6, 10), parseInt(dateString.substring(0, 2)) - 1, dateString.substring(3, 5));
     const response = await simulateOneDate(teamId, date);
     return res.json(response);
+}
+
+export async function getTodayProjections(req, res, next) {
+    const result = await DateProjection.find({});
+    if (result.length != 1) {
+        const error = new Error("More than 1 result in DB");
+        error.statusCode = 404;
+        throw error;
+    }
+    return res.json(result[0].games);
 }
