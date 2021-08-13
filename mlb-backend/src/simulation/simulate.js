@@ -43,7 +43,6 @@ export function populateProjDBToday() {
 }
 
 async function runAll() {
-  /*
   await setTeams();
   await setCurrentRecords();
   await getRemainingGames();
@@ -53,7 +52,7 @@ async function runAll() {
     }
     await simulateRestOfSeason();
   }
-  addToDB(); */
+  addToDB();
   simulateToday();
 }
 
