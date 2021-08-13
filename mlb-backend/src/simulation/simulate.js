@@ -43,6 +43,7 @@ export function populateProjDBToday() {
 }
 
 async function runAll() {
+  /*
   await setTeams();
   await setCurrentRecords();
   await getRemainingGames();
@@ -52,7 +53,7 @@ async function runAll() {
     }
     await simulateRestOfSeason();
   }
-  addToDB();
+  addToDB(); */
   simulateToday();
 }
 
@@ -681,6 +682,12 @@ async function simulateOneGame(game, date) {
   await team2.setup();
   let startingPitcher1 = gameBox.data.teams.home.pitchers[0];
   let startingPitcher2 = gameBox.data.teams.away.pitchers[0];
+  if (startingPitcher1 === undefined && game.teams.home.probablePitcher !== undefined) {
+    startingPitcher1 = game.teams.home.probablePitcher.id;
+  }
+  if (startingPitcher2 === undefined && game.teams.away.probablePitcher !== undefined) {
+    startingPitcher2 = game.teams.away.probablePitcher.id;
+  }
   let startingPitcher1R = team1.pitcherRatings[team1.pitchers.indexOf(startingPitcher1)];
   let startingPitcher2R = team2.pitcherRatings[team2.pitchers.indexOf(startingPitcher2)];
   const prob = getProbability(team1, team2, startingPitcher1R, startingPitcher2R);
@@ -696,7 +703,7 @@ export async function simulateToday(date = new Date()) {
     try {
       const formattedDate = ('0' + parseInt(date.getMonth() + 1)).slice(-2) + '/' +
       ('0' + date.getDate()).slice(-2) + '/' + date.getFullYear();
-      const response = await axios.get(`${MLB_API_URL}/schedule/games/?sportId=1&date=${formattedDate}`);
+      const response = await axios.get(`${MLB_API_URL}/schedule/games/?sportId=1&date=${formattedDate}&hydrate=probablePitcher`);
       for (let i = 0; i < response.data.totalGames; i++) {
         const game = response.data.dates[0].games[i];
         const gameResponse = await simulateOneGame(game, date);
@@ -731,6 +738,9 @@ export async function simulateToday(date = new Date()) {
 }
 
 function formattedFloat(x) {
+  if (x === undefined) {
+    return x;
+  }
   return parseFloat(x.toPrecision(5));
 }
 
