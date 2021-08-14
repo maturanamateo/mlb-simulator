@@ -119,9 +119,10 @@ export class Pitcher {
   set = false;
   iterations = 0;
 
-  constructor(personJSON) {
+  constructor(personJSON, year) {
     this.playerId = personJSON.id;
     this.personJSON = personJSON;
+    this.year = year;
   }
 
   async setup() {
@@ -152,9 +153,9 @@ export class Pitcher {
           this.set = true;
         } else {
           curYear = (parseFloat(curYear) - 1).toString();
-          this.iterations++;
         }
       }
+      this.iterations = this.year - parseFloat(curYear);
     }
   }
 
@@ -182,9 +183,10 @@ export class Position {
   set = false;
   iterations = 0;
 
-  constructor(personJSON) {
+  constructor(personJSON, year) {
     this.playerId = personJSON.id;
     this.personJSON = personJSON;
+    this.year = year;
   }
 
   async setup() {
@@ -219,6 +221,7 @@ export class Position {
           this.iterations++;
         }
       }
+      this.iterations = this.year - parseFloat(curYear);
     }
   }
 
@@ -295,7 +298,7 @@ export class Team {
       try {
         const response = await axios.get(`${MLB_API_URL}/people?personIds=${hitterIds}&hydrate=stats(${statHydrateH})`);
         for (let i = 0; i < response.data.people.length; i++) {
-          const player = new Position(response.data.people[i]);
+          const player = new Position(response.data.people[i], this.date.getFullYear());
           await player.setup();
           this.hitterRatings.push(player.rating);
         }
@@ -314,7 +317,7 @@ export class Team {
       try {
         const response = await axios.get(`${MLB_API_URL}/people?personIds=${pitcherIds}&hydrate=stats(${statHydrateP})`);
         for (let i = 0; i < response.data.people.length; i++) {
-          const player = new Pitcher(response.data.people[i]);
+          const player = new Pitcher(response.data.people[i], this.date.getFullYear());
           await player.setup();
           this.pitcherRatings.push(player.rating)
         }
@@ -693,7 +696,7 @@ function getProbability(team1, team2, pitcher1Rating, pitcher2Rating) {
   // TEMP (WIP)
   const team1Rating = ((pitcher1Rating + team1.pitcherRating) / 2 + team1.hitterRating) / 2;
   const team2Rating = ((pitcher2Rating + team2.pitcherRating) / 2 + team2.hitterRating) / 2;
-  return Math.pow(team1Rating, 2.5) / (Math.pow(team2Rating, 2.5) + Math.pow(team1Rating, 2.5));
+  return Math.pow(team1Rating, 3) / (Math.pow(team2Rating, 3) + Math.pow(team1Rating, 3));
 }
 
 export async function simulateOneDate(id, date) {
