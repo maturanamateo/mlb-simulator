@@ -1,6 +1,7 @@
 .date {
     font-size: 50px;
-    text-decoration-line: underline;
+    text-align: center;
+    font-family: 'Gill Sans',sans-serif;
 }
 
 table, th, td {

@@ -57,5 +57,6 @@ export async function getTodayProjections(req, res, next) {
         error.statusCode = 404;
         throw error;
     }
-    return res.json(result[0].games);
+    console.log(result[0].date);
+    return res.json(result[0]);
 }

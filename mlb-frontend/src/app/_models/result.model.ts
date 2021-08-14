@@ -21,7 +21,7 @@ export interface Result {
     championshipOdds: number;
 }
 
-interface TeamGame {
+export interface TeamGame {
     name: string;
     pitchingRating: number;
     hittingRating: number;
@@ -30,5 +30,6 @@ interface TeamGame {
 }
 
 export interface DateProjections {
+    date: Date;
     games: Array<Array<TeamGame>>;
 }
