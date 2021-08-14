@@ -23,10 +23,16 @@ export async function getResults(req, res, next) {
 
 export async function getResultsByDate(req, res, next) {
     // error catch here
-    const date = Date(req.body.date);
-    let dateString = date.toISOString().slice(0, 10);
+    const dateString = req.query.date;
+    // date string should be in YYYY-MM-DD format b/c of mongoose
+    if (dateString === undefined) {
+        const error = new Error("Invalid date");
+        error.statusCode = 404;
+        throw error;
+    }
     let results = [];
-    results = await DateResult.find({date: new Date(dateString)});
+    console.log(dateString);
+    results = await DateResult.find({date: dateString});
     return res.json(results);
 }
 

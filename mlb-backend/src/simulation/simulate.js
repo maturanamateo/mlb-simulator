@@ -42,12 +42,25 @@ export function populateProjDBToday() {
   );
 }
 
+export function getTodayProjections() {
+  mongoose.connect(process.env.MONGODB_IP,
+    {
+      useUnifiedTopology: true,
+      useNewUrlParser: true
+    },
+    (err) => {
+      if (err) {
+        throw new Error('Could not connect to database. Exiting...');
+      }
+      console.log('Successfully connected to MongoDB instance.');
+      /* loadDummyData(); */
+      simulateToday();
+    }
+  );
+}
+
 async function runAll() {
   await setTeams();
-  for (let i = 0; i < teams.length; i++) {
-    console.log((teams[i].pitcherRating + teams[i].hitterRating) / 2);
-  }
-  /*
   await setCurrentRecords();
   await getRemainingGames();
   for (let i = 0; i < TOTAL_ITERATIONS; i++) {
@@ -57,7 +70,6 @@ async function runAll() {
     await simulateRestOfSeason();
   }
   addToDB();
-  simulateToday();*/
 }
 
 async function loadDummyData() {
@@ -786,7 +798,9 @@ function formattedFloat(x) {
 
 async function addToDB() {
   await TeamResult.deleteMany({});
+  let teamResults = [];
   for (let i = 0; i < teams.length; i++) {
+    const playoffOdds = formattedFloat(teams[i].postApps * 100 / TOTAL_ITERATIONS);
     const genTeam = new TeamResult({
       code: teams[i].code,
       division: teams[i].division,
@@ -794,12 +808,27 @@ async function addToDB() {
       currentLosses: teams[i].currentLosses,
       projWins: formattedFloat((teams[i].totalWins / TOTAL_ITERATIONS) + teams[i].currentWins),
       projLosses: formattedFloat((teams[i].totalLosses / TOTAL_ITERATIONS) + teams[i].currentLosses),
-      playoffOdds: formattedFloat(teams[i].postApps * 100 / TOTAL_ITERATIONS),
+      playoffOdds: playoffOdds,
       divisionOdds: formattedFloat(teams[i].divisionWins * 100 / TOTAL_ITERATIONS),
       WCOdds: formattedFloat(teams[i].WCApps * 100 / TOTAL_ITERATIONS),
       pennantOdds: formattedFloat(teams[i].pennantWins * 100 / TOTAL_ITERATIONS),
       championshipOdds: formattedFloat(teams[i].champWins * 100 / TOTAL_ITERATIONS)});
     genTeam.save();
+    teamResults.push(
+      {
+        code: teams[i].code,
+        division: teams[i].division,
+        odds: playoffOdds
+      }
+    );
   }
+  const date = new Date();
+  const formattedDate = date.getFullYear() + '-' + ('0' + parseInt(date.getMonth() + 1)).slice(-2) 
+    + '-' + ('0' + date.getDate()).slice(-2);
+  const dateResult = new DateResult({
+    date: formattedDate,
+    teamResults: teamResults
+  });
+  dateResult.save();
   console.log("Successfully Updated DB!");
 }
