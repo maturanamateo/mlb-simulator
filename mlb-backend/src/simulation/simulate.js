@@ -44,6 +44,10 @@ export function populateProjDBToday() {
 
 async function runAll() {
   await setTeams();
+  for (let i = 0; i < teams.length; i++) {
+    console.log((teams[i].pitcherRating + teams[i].hitterRating) / 2);
+  }
+  /*
   await setCurrentRecords();
   await getRemainingGames();
   for (let i = 0; i < TOTAL_ITERATIONS; i++) {
@@ -53,7 +57,7 @@ async function runAll() {
     await simulateRestOfSeason();
   }
   addToDB();
-  simulateToday();
+  simulateToday();*/
 }
 
 async function loadDummyData() {
@@ -675,8 +679,8 @@ function getProbability(team1, team2, pitcher1Rating, pitcher2Rating) {
     pitcher2Rating = team2.pitcherRating;
   }
   // TEMP (WIP)
-  const team1Rating = ((pitcher1Rating + team1.pitcherRating) / 2 + team1.hitterRating) / 2 + .0501;
-  const team2Rating = ((pitcher2Rating + team2.pitcherRating) / 2 + team2.hitterRating) / 2 - .0501;
+  const team1Rating = ((pitcher1Rating + team1.pitcherRating) / 2 + team1.hitterRating) / 2 + .015;
+  const team2Rating = ((pitcher2Rating + team2.pitcherRating) / 2 + team2.hitterRating) / 2 - .015;
   return Math.pow(team1Rating, 2) / (Math.pow(team2Rating, 2) + Math.pow(team1Rating, 2));
 }
 
