@@ -1,25 +1,35 @@
 <div class = "date">
     {{dateString}}
 </div>
+<br>
+<table>
+    <tr class="header">
+        <th> TEAM </th>
+        <th> PITCHING RATING </th>
+        <th> HITTING RATING </th>
+        <th> STARTING PITCHER RATING </th>
+        <th> WIN PROBABILITY </th>
+    </tr>
+    <ng-container *ngFor="let game of games">
+        <tr class="upper">
+            <td [ngStyle]="{'background-color': teamColors.get(game[0].name)}"> {{ game[0].name }} </td>
+            <td> {{ game[0].pitchingRating }} </td>
+            <td> {{ game[0].hittingRating }} </td>
+            <td> {{ game[0].startingPitcherRating }} </td>
+            <td [ngStyle]="{'background-color': getWinColor(game[0].probability)}"> {{ game[0].probability }}% </td>
+        </tr>
+        <tr class="lower">
+            <td [ngStyle]="{'background-color': teamColors.get(game[1].name)}"> {{ game[1].name }} </td>
+            <td> {{ game[1].pitchingRating }} </td>
+            <td> {{ game[1].hittingRating }} </td>
+            <td> {{ game[1].startingPitcherRating }} </td>
+            <td [ngStyle]="{'background-color': getWinColor(game[1].probability)}"> {{ game[1].probability }}% </td>
+        </tr>
+    </ng-container>
+</table>
+<!--
 <div *ngFor="let game of games">
     <table style="width:50%">
-        <tr>
-            <th class="header">
-                Team
-            </th>
-            <th class="header">
-                Pitching Rating
-            </th>
-            <th class="header">
-                Hitting Rating
-            </th>
-            <th class="header">
-                Starting Pitcher Rating
-            </th>
-            <th class="header">
-                Win Probability
-            </th>
-        </tr>
         <tr *ngFor="let team of game">
             <td> {{ team.name }} </td>
             <td> {{ team.pitchingRating }} </td>
@@ -30,3 +40,4 @@
     </table>
     <br>
 </div>
+-->

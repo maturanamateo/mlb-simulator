@@ -4,7 +4,31 @@
     font-family: 'Gill Sans',sans-serif;
 }
 
-table, th, td {
-    border: 1px solid black;
+table {
     border-collapse: collapse;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.header {
+    font-size: 10px;
+    font-weight: 100;
+    border-bottom: 3px solid #222;
+    font-family: 'Gill Sans',sans-serif;
+}
+
+.upper {
+    font-family: 'Gill Sans',sans-serif;
+    font-size: 20px;
+    line-height: 50px;
+    text-align: center;
+}
+
+.lower {
+    font-family: 'Gill Sans',sans-serif;
+    border-bottom: 3px double #222;
+    font-size: 20px;
+    line-height: 50px;
+    text-align: center;
 }
