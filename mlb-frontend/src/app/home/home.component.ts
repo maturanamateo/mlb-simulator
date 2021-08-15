@@ -18,6 +18,7 @@ export class HomeComponent implements OnInit {
   NLE: Result[] = [];
   NLC: Result[] = [];
   NLW: Result[] = [];
+  divisions: Result[][] = [];
 
   constructor(private http: HttpClient) { }
 
@@ -49,6 +50,51 @@ export class HomeComponent implements OnInit {
     for (let i = 25; i < 30; i++) {
       this.NLW.push(this.results[i]);
     }
+    this.divisions.push(this.ALE);
+    this.divisions.push(this.ALC);
+    this.divisions.push(this.ALW);
+    this.divisions.push(this.NLE);
+    this.divisions.push(this.NLC);
+    this.divisions.push(this.NLW);
+  }
+
+  getPlayoffColor(odds: number) {
+    let red = 0;
+    let green = 0;
+    if (odds >= 50) {
+      red = Math.max(Math.floor(255 - (4 * (odds - 50))), 0);
+      green = 255;
+    } else {
+      red = 255;
+      green = Math.max(Math.floor(255 - (4 * (50 - odds))), 0);
+    }
+    return 'rgba(' + red + ',' + green + ', 0, .8)';
+  }
+
+  getPennantColor(odds: number) {
+    let red = 0;
+    let green = 0;
+    if (odds >= 20) {
+      red = Math.max(Math.floor(255 - (10 * (odds - 20))), 0);
+      green = 255;
+    } else {
+      red = 255;
+      green = Math.max(Math.floor(255 - (10 * (20 - odds))), 0);
+    }
+    return 'rgba(' + red + ',' + green + ', 0, .8)';
+  }
+
+  getWSColor(odds: number) {
+    let red = 0;
+    let green = 0;
+    if (odds >= 7.5) {
+      red = Math.max(Math.floor(255 - (25 * (odds - 7.5))), 0);
+      green = 255;
+    } else {
+      red = 255;
+      green = Math.max(Math.floor(255 - (25 * (7.5 - odds))), 0);
+    }
+    return 'rgba(' + red + ',' + green + ', 0, .8)';
   }
 
 }

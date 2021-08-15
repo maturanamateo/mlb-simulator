@@ -57,6 +57,5 @@ export async function getTodayProjections(req, res, next) {
         error.statusCode = 404;
         throw error;
     }
-    console.log(result[0].date);
     return res.json(result[0]);
 }

@@ -1,148 +1,86 @@
 <div class = "title">
     Postseason Odds
 </div>
-<table style="width:100%">
-    <tr>
-        <th class="header">
-            Team
-        </th>
-        <th class="header">
-            Division
-        </th>
-        <th class="header">
-            W
-        </th>
-        <th class="header">
-            L
-        </th>
-        <th class="header">
-            Proj W
-        </th>
-        <th class="header">
-            Proj L
-        </th>
-        <th class="header">
-            Postseason %
-        </th>
-        <th class="header">
-            Division %
-        </th>
-        <th class="header">
-            Wild Card %
-        </th>
-        <th class="header">
-            Pennant %
-        </th>
-        <th class="header">
-            World Series %
-        </th>
-    </tr> <tr> </tr>
-    <tr>
-        <td class="division">
-            ALE
-        </td>
+<br>
+<table>
+    <tr class = "header">
+        <th> TEAM </th>
+        <th> DIVISION </th>
+        <th> W </th>
+        <th> L </th>
+        <th> PROJ W </th>
+        <th> PROJ L </th>
+        <th> PLAYOFF % </th>
+        <th> DIVISION % </th>
+        <th> WILD CARD % </th>
+        <th> PENNANT % </th>
+        <th> WORLD SERIES % </th>
     </tr>
-    <tr *ngFor="let team of ALE">
-        <td> {{ team.code }} </td>
-        <td> {{ team.division }} </td>
-        <td> {{ team.currentWins }} </td>
-        <td> {{ team.currentLosses }} </td>
-        <td> {{ team.projWins }} </td>
-        <td> {{ team.projLosses }} </td>
-        <td> {{ team.playoffOdds }} </td> 
-        <td> {{ team.divisionOdds }} </td>
-        <td> {{ team.WCOdds }} </td>
-        <td> {{ team.pennantOdds }} </td>
-        <td> {{ team.championshipOdds }} </td>
-    </tr>
-    <tr>
-        <td class="division">
-            ALC
-        </td>
-    </tr>
-    <tr *ngFor="let team of ALC">
-        <td> {{ team.code }} </td>
-        <td> {{ team.division }} </td>
-        <td> {{ team.currentWins }} </td>
-        <td> {{ team.currentLosses }} </td>
-        <td> {{ team.projWins }} </td>
-        <td> {{ team.projLosses }} </td>
-        <td> {{ team.playoffOdds }} </td> 
-        <td> {{ team.divisionOdds }} </td>
-        <td> {{ team.WCOdds }} </td>
-        <td> {{ team.pennantOdds }} </td>
-        <td> {{ team.championshipOdds }} </td>
-    </tr>
-    <tr>
-        <td class="division">
-            ALW
-        </td>
-    </tr>
-    <tr *ngFor="let team of ALW">
-        <td> {{ team.code }} </td>
-        <td> {{ team.division }} </td>
-        <td> {{ team.currentWins }} </td>
-        <td> {{ team.currentLosses }} </td>
-        <td> {{ team.projWins }} </td>
-        <td> {{ team.projLosses }} </td>
-        <td> {{ team.playoffOdds }} </td> 
-        <td> {{ team.divisionOdds }} </td>
-        <td> {{ team.WCOdds }} </td>
-        <td> {{ team.pennantOdds }} </td>
-        <td> {{ team.championshipOdds }} </td>
-    </tr>
-    <tr>
-        <td class="division">
-            NLE
-        </td>
-    </tr>
-    <tr *ngFor="let team of NLE">
-        <td> {{ team.code }} </td>
-        <td> {{ team.division }} </td>
-        <td> {{ team.currentWins }} </td>
-        <td> {{ team.currentLosses }} </td>
-        <td> {{ team.projWins }} </td>
-        <td> {{ team.projLosses }} </td>
-        <td> {{ team.playoffOdds }} </td> 
-        <td> {{ team.divisionOdds }} </td>
-        <td> {{ team.WCOdds }} </td>
-        <td> {{ team.pennantOdds }} </td>
-        <td> {{ team.championshipOdds }} </td>
-    </tr>
-    <tr>
-        <td class="division">
-            NLC
-        </td>
-    </tr>
-    <tr *ngFor="let team of NLC">
-        <td> {{ team.code }} </td>
-        <td> {{ team.division }} </td>
-        <td> {{ team.currentWins }} </td>
-        <td> {{ team.currentLosses }} </td>
-        <td> {{ team.projWins }} </td>
-        <td> {{ team.projLosses }} </td>
-        <td> {{ team.playoffOdds }} </td> 
-        <td> {{ team.divisionOdds }} </td>
-        <td> {{ team.WCOdds }} </td>
-        <td> {{ team.pennantOdds }} </td>
-        <td> {{ team.championshipOdds }} </td>
-    </tr>
-    <tr>
-        <td class="division">
-            NLW
-        </td>
-    </tr>
-    <tr *ngFor="let team of NLW">
-        <td> {{ team.code }} </td>
-        <td> {{ team.division }} </td>
-        <td> {{ team.currentWins }} </td>
-        <td> {{ team.currentLosses }} </td>
-        <td> {{ team.projWins }} </td>
-        <td> {{ team.projLosses }} </td>
-        <td> {{ team.playoffOdds }} </td> 
-        <td> {{ team.divisionOdds }} </td>
-        <td> {{ team.WCOdds }} </td>
-        <td> {{ team.pennantOdds }} </td>
-        <td> {{ team.championshipOdds }} </td>
-    </tr>
+    <ng-container *ngFor="let division of divisions">
+        <tr class="upper"> 
+            <td> {{ division[0].code }} </td>
+            <td class="right"> {{ division[0].division }} </td>
+            <td class="left"> {{ division[0].currentWins }} </td>
+            <td class="right"> {{ division[0].currentLosses}} </td>
+            <td class="left"> {{ division[0].projWins }} </td>
+            <td class="right"> {{ division[0].projLosses }} </td>
+            <td class="left" [ngStyle]="{'background-color': getPlayoffColor(division[0].playoffOdds)}"> {{ division[0].playoffOdds }} </td>
+            <td [ngStyle]="{'background-color': getPlayoffColor(division[0].divisionOdds)}"> {{ division[0].divisionOdds }} </td>
+            <td [ngStyle]="{'background-color': getPlayoffColor(division[0].WCOdds)}"> {{ division[0].WCOdds }} </td>
+            <td [ngStyle]="{'background-color': getPennantColor(division[0].pennantOdds)}"> {{ division[0].pennantOdds }} </td>
+            <td [ngStyle]="{'background-color': getWSColor(division[0].championshipOdds)}"> {{ division[0].championshipOdds }} </td>   
+        </tr>
+        <tr class="lower"> 
+            <td> {{ division[1].code }} </td>
+            <td class="right"> {{ division[1].division }} </td>
+            <td class="left"> {{ division[1].currentWins }} </td>
+            <td class="right"> {{ division[1].currentLosses}} </td>
+            <td class="left"> {{ division[1].projWins }} </td>
+            <td class="right"> {{ division[1].projLosses }} </td>
+            <td class="left" [ngStyle]="{'background-color': getPlayoffColor(division[1].playoffOdds)}"> {{ division[1].playoffOdds }} </td>
+            <td [ngStyle]="{'background-color': getPlayoffColor(division[1].divisionOdds)}"> {{ division[1].divisionOdds }} </td>
+            <td [ngStyle]="{'background-color': getPlayoffColor(division[1].WCOdds)}"> {{ division[1].WCOdds }} </td>
+            <td [ngStyle]="{'background-color': getPennantColor(division[1].pennantOdds)}"> {{ division[1].pennantOdds }} </td>
+            <td [ngStyle]="{'background-color': getWSColor(division[1].championshipOdds)}"> {{ division[1].championshipOdds }} </td>   
+        </tr>
+        <tr class="lower"> 
+            <td> {{ division[2].code }} </td>
+            <td class="right"> {{ division[2].division }} </td>
+            <td class="left"> {{ division[2].currentWins }} </td>
+            <td class="right"> {{ division[2].currentLosses}} </td>
+            <td class="left"> {{ division[2].projWins }} </td>
+            <td class="right"> {{ division[2].projLosses }} </td>
+            <td class="left" [ngStyle]="{'background-color': getPlayoffColor(division[2].playoffOdds)}"> {{ division[2].playoffOdds }} </td>
+            <td [ngStyle]="{'background-color': getPlayoffColor(division[2].divisionOdds)}"> {{ division[2].divisionOdds }} </td>
+            <td [ngStyle]="{'background-color': getPlayoffColor(division[2].WCOdds)}"> {{ division[2].WCOdds }} </td>
+            <td [ngStyle]="{'background-color': getPennantColor(division[2].pennantOdds)}"> {{ division[2].pennantOdds }} </td>
+            <td [ngStyle]="{'background-color': getWSColor(division[2].championshipOdds)}"> {{ division[2].championshipOdds }} </td>   
+        </tr>
+        <tr class="lower"> 
+            <td> {{ division[3].code }} </td>
+            <td class="right"> {{ division[3].division }} </td>
+            <td class="left"> {{ division[3].currentWins }} </td>
+            <td class="right"> {{ division[3].currentLosses}} </td>
+            <td class="left"> {{ division[3].projWins }} </td>
+            <td class="right"> {{ division[3].projLosses }} </td>
+            <td class="left" [ngStyle]="{'background-color': getPlayoffColor(division[3].playoffOdds)}"> {{ division[3].playoffOdds }} </td>
+            <td [ngStyle]="{'background-color': getPlayoffColor(division[3].divisionOdds)}"> {{ division[3].divisionOdds }} </td>
+            <td [ngStyle]="{'background-color': getPlayoffColor(division[3].WCOdds)}"> {{ division[3].WCOdds }} </td>
+            <td [ngStyle]="{'background-color': getPennantColor(division[3].pennantOdds)}"> {{ division[3].pennantOdds }} </td>
+            <td [ngStyle]="{'background-color': getWSColor(division[3].championshipOdds)}"> {{ division[3].championshipOdds }} </td>   
+        </tr>
+        <tr class="lower"> 
+            <td> {{ division[4].code }} </td>
+            <td class="right"> {{ division[4].division }} </td>
+            <td class="left"> {{ division[4].currentWins }} </td>
+            <td class="right"> {{ division[4].currentLosses}} </td>
+            <td class="left"> {{ division[4].projWins }} </td>
+            <td class="right"> {{ division[4].projLosses }} </td>
+            <td class="left" [ngStyle]="{'background-color': getPlayoffColor(division[4].playoffOdds)}"> {{ division[4].playoffOdds }} </td>
+            <td [ngStyle]="{'background-color': getPlayoffColor(division[4].divisionOdds)}"> {{ division[4].divisionOdds }} </td>
+            <td [ngStyle]="{'background-color': getPlayoffColor(division[4].WCOdds)}"> {{ division[4].WCOdds }} </td>
+            <td [ngStyle]="{'background-color': getPennantColor(division[4].pennantOdds)}"> {{ division[4].pennantOdds }} </td>
+            <td [ngStyle]="{'background-color': getWSColor(division[4].championshipOdds)}"> {{ division[4].championshipOdds }} </td>   
+        </tr>
+    </ng-container>
 </table>

@@ -2,7 +2,7 @@
     {{dateString}}
 </div>
 <br>
-<table>
+<table *ngIf="games.length > 0">
     <tr class="header">
         <th> TEAM </th>
         <th> PITCHING RATING </th>
@@ -27,17 +27,6 @@
         </tr>
     </ng-container>
 </table>
-<!--
-<div *ngFor="let game of games">
-    <table style="width:50%">
-        <tr *ngFor="let team of game">
-            <td> {{ team.name }} </td>
-            <td> {{ team.pitchingRating }} </td>
-            <td> {{ team.hittingRating }} </td>
-            <td> {{ team.startingPitcherRating }} </td>
-            <td> {{ team.probability }} </td>
-        </tr> 
-    </table>
-    <br>
+<div class = "text" *ngIf="games.length == 0">
+    No games scheduled for Today
 </div>
--->

@@ -16,6 +16,7 @@ table {
     font-weight: 100;
     border-bottom: 3px solid #222;
     font-family: 'Gill Sans',sans-serif;
+    text-align: center;
 }
 
 .upper {
@@ -30,5 +31,11 @@ table {
     border-bottom: 3px double #222;
     font-size: 20px;
     line-height: 50px;
+    text-align: center;
+}
+
+.text {
+    font-family: 'Gill Sans',sans-serif;
+    font-size: 35px;
     text-align: center;
 }
