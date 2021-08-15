@@ -21,7 +21,7 @@ table {
 
 .upper {
     font-family: 'Gill Sans',sans-serif;
-    font-size: 20px;
+    font-size: 25px;
     line-height: 50px;
     text-align: center;
 }
@@ -29,7 +29,7 @@ table {
 .lower {
     font-family: 'Gill Sans',sans-serif;
     border-bottom: 3px double #222;
-    font-size: 20px;
+    font-size: 25px;
     line-height: 50px;
     text-align: center;
 }

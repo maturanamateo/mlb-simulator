@@ -43,7 +43,7 @@ export class GameProjectionsComponent implements OnInit {
     this.teamColors.set('Chicago White Sox', 'rgba(196, 206, 212, .8)');
     this.teamColors.set('Cincinnati Reds', 'rgba(198, 1, 31, .8)');
     this.teamColors.set('Cleveland Indians', 'rgba(12, 35, 64, .8)');
-    this.teamColors.set('Colorado Rockies', 'rgba(51, 0, 111, .8)');
+    this.teamColors.set('Colorado Rockies', 'rgba(51, 0, 111, .7)');
     this.teamColors.set('Detroit Tigers', 'rgba(12, 35, 60, .8)');
     this.teamColors.set('Houston Astros', 'rgba(235, 110, 31, .8)');
     this.teamColors.set('Kansas City Royals', 'rgba(0, 70, 135, .8)');
