@@ -9,6 +9,8 @@ import { GameProjectionsComponent } from './game-projections/game-projections.co
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
 import { GraphsComponent } from './graphs/graphs.component';
+import { ChartModule } from '@syncfusion/ej2-angular-charts';
+import { CategoryService, LineSeriesService} from '@syncfusion/ej2-angular-charts';
 
 @NgModule({
   declarations: [
@@ -22,9 +24,10 @@ import { GraphsComponent } from './graphs/graphs.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    ChartModule
   ],
-  providers: [],
+  providers: [CategoryService, LineSeriesService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

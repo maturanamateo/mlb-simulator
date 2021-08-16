@@ -835,6 +835,7 @@ async function addToDB() {
   const date = new Date();
   const formattedDate = date.getFullYear() + '-' + ('0' + parseInt(date.getMonth() + 1)).slice(-2) 
     + '-' + ('0' + date.getDate()).slice(-2);
+  await DateResult.deleteMany({date: formattedDate});
   const dateResult = new DateResult({
     date: formattedDate,
     teamResults: teamResults

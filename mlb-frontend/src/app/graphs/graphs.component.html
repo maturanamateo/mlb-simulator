@@ -1,1 +1,5 @@
-<p>graphs works!</p>
+<ejs-chart id="chart-container" [primaryXAxis]='primaryXAxis'>
+    <e-series-collection>
+        <e-series [dataSource]='odds[17]' type='Line' xName='date' yName='value'></e-series>
+    </e-series-collection>
+</ejs-chart>
