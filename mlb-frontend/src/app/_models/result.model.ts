@@ -42,5 +42,5 @@ interface TeamOdds {
 
 export interface HistoricalOdds {
     date: Date;
-    teamOdds: Array<TeamOdds>;
+    teamResults: Array<TeamOdds>;
 }
