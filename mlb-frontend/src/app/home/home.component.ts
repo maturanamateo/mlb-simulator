@@ -87,12 +87,12 @@ export class HomeComponent implements OnInit {
   getWSColor(odds: number) {
     let red = 0;
     let green = 0;
-    if (odds >= 7.5) {
-      red = Math.max(Math.floor(255 - (25 * (odds - 7.5))), 0);
+    if (odds >= 8) {
+      red = Math.max(Math.floor(255 - (25 * (odds - 8))), 0);
       green = 255;
     } else {
       red = 255;
-      green = Math.max(Math.floor(255 - (25 * (7.5 - odds))), 0);
+      green = Math.max(Math.floor(255 - (25 * (8 - odds))), 0);
     }
     return 'rgba(' + red + ',' + green + ', 0, .8)';
   }

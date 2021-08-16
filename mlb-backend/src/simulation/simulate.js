@@ -64,7 +64,7 @@ async function runAll() {
   await setCurrentRecords();
   await getRemainingGames();
   for (let i = 0; i < TOTAL_ITERATIONS; i++) {
-    if (i % 10 == 0) {
+    if (i % 1000 == 0) {
       console.log(`Running Season ${i}`);
     }
     await simulateRestOfSeason();
@@ -465,7 +465,7 @@ async function setTeams() {
   await giants.setup();
   idToTeamIndex.set(137, 27);
   teams.push(giants);
-  let padres = new Team('SD', 'NLW', 135 );
+  let padres = new Team('SD', 'NLW', 135);
   await padres.setup();
   idToTeamIndex.set(135, 28);
   teams.push(padres);
@@ -480,14 +480,21 @@ async function setCurrentRecords() {
     try {
       const response = await axios.get(`${MLB_API_URL}/standings?leagueId=103,104&season=${CURRENT_YEAR}&standingsTypes=regularSeason`);
       const records = response.data.records;
-      for (let i = 0; i < records.length; i++) {
-        const record = records[i];
-        for (let j = 0; j < record.teamRecords.length; j++) {
-          const teamRecord = record.teamRecords[j];
-          let teamId = teamRecord.team.id;
-          let index = idToTeamIndex.get(teamId);
-          teams[index].currentWins = teamRecord.wins;
-          teams[index].currentLosses = teamRecord.losses;
+      if (records === undefined || records.length == 0) {
+        for (let i = 0; i < teams.length; i++) {
+          teams[i].currentWins = 0;
+          teams[i].currentLosses = 0;
+        }
+      } else {
+        for (let i = 0; i < records.length; i++) {
+          const record = records[i];
+          for (let j = 0; j < record.teamRecords.length; j++) {
+            const teamRecord = record.teamRecords[j];
+            let teamId = teamRecord.team.id;
+            let index = idToTeamIndex.get(teamId);
+            teams[index].currentWins = teamRecord.wins;
+            teams[index].currentLosses = teamRecord.losses;
+          }
         }
       }
     } catch (error) {
