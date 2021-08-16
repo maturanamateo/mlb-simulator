@@ -33,3 +33,14 @@ export interface DateProjections {
     date: Date;
     games: Array<Array<TeamGame>>;
 }
+
+interface TeamOdds {
+    code: string;
+    division: string;
+    odds: number;
+}
+
+export interface HistoricalOdds {
+    date: Date;
+    teamOdds: Array<TeamOdds>;
+}

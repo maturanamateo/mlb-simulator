@@ -8,6 +8,7 @@ import { HomeComponent } from './home/home.component';
 import { GameProjectionsComponent } from './game-projections/game-projections.component';
 import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
+import { GraphsComponent } from './graphs/graphs.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { FooterComponent } from './footer/footer.component';
     HomeComponent,
     GameProjectionsComponent,
     HeaderComponent,
-    FooterComponent
+    FooterComponent,
+    GraphsComponent
   ],
   imports: [
     BrowserModule,
