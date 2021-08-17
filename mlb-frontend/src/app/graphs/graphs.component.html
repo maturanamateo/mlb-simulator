@@ -1,5 +1,21 @@
-<ejs-chart id="chart-container" [primaryXAxis]='primaryXAxis'>
+<div class = "select">
+    <mat-form-field appearance="fill">
+        <mat-label> Division </mat-label>
+        <mat-select (selectionChange)="change($event.value)" placeholder="ALE">
+            <mat-option *ngFor="let division of leagues" [value]="division">
+                {{ division }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+</div>
+
+<ejs-chart id="chart-container" [primaryXAxis]='primaryXAxis' [primaryYAxis]='primaryYAxis'
+    [palettes]='palettes[currentIndex / 5]' [legendSettings]='legendSettings' (seriesRender)='seriesRender($event)'>
     <e-series-collection>
-        <e-series [dataSource]='odds[17]' type='Line' xName='date' yName='value'></e-series>
+        <e-series [dataSource]='odds[currentIndex]' type='Line' xName='date' yName='value' name='text'></e-series>
+        <e-series [dataSource]='odds[currentIndex + 1]' type='Line' xName='date' yName='value' name='text'></e-series>
+        <e-series [dataSource]='odds[currentIndex + 2]' type='Line' xName='date' yName='value' name='text'></e-series>
+        <e-series [dataSource]='odds[currentIndex + 3]' type='Line' xName='date' yName='value' name='text'></e-series>
+        <e-series [dataSource]='odds[currentIndex + 4]' type='Line' xName='date' yName='value' name='text'></e-series>
     </e-series-collection>
 </ejs-chart>

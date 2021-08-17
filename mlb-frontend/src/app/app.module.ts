@@ -10,7 +10,12 @@ import { HeaderComponent } from './header/header.component';
 import { FooterComponent } from './footer/footer.component';
 import { GraphsComponent } from './graphs/graphs.component';
 import { ChartModule } from '@syncfusion/ej2-angular-charts';
-import { CategoryService, LineSeriesService} from '@syncfusion/ej2-angular-charts';
+import { CategoryService, DateTimeService, LineSeriesService, DataLabelService} from '@syncfusion/ej2-angular-charts';
+import { LegendService } from '@syncfusion/ej2-angular-charts';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -25,9 +30,14 @@ import { CategoryService, LineSeriesService} from '@syncfusion/ej2-angular-chart
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    ChartModule
+    ChartModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    NoopAnimationsModule
   ],
-  providers: [CategoryService, LineSeriesService],
+  providers: [CategoryService, LineSeriesService, DateTimeService, DataLabelService,
+              LegendService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
