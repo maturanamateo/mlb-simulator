@@ -144,9 +144,9 @@ export class Pitcher {
           }
         }
         const stats = this.personJSON.stats[0].splits[targetIndex].stat;
-        this.k9 = Math.max(.6, parseFloat(stats.strikeoutsPer9Inn));
+        this.k9 = parseFloat(stats.strikeoutsPer9Inn);
         this.hr9 = Math.max(.6, parseFloat(stats.homeRunsPer9));
-        this.whip = parseFloat(stats.whip);
+        this.whip = Math.max(.65, parseFloat(stats.whip));
         this.gamesStarted = stats.gamesStarted;
         this.gamesPitched = stats.gamesPitched;
         if (this.gamesStarted >= 4 || this.gamesPitched >= 10) {
