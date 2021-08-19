@@ -258,12 +258,14 @@ export class Team {
   divisionWins = 0;
   pennantWins = 0;
   champWins = 0;
+  idToNames = new Map();
 
-  constructor(code, division, id, date = new Date()) {
+  constructor(code, division, id, date = new Date(), set = false) {
     this.code = code;
     this.division = division;
     this.id = id;
     this.date = date;
+    this.setNames = set;
   }
 
   async setup() {
@@ -333,7 +335,7 @@ export class Team {
       try {
         const formattedDate = ('0' + parseInt(this.date.getMonth() + 1)).slice(-2) + '/' +
         ('0' + this.date.getDate()).slice(-2) + '/' + this.date.getFullYear();
-        const response = await axios.get(`${MLB_API_URL}/teams/${this.id}/roster/?date=${formattedDate}`);
+        const response = await axios.get(`${MLB_API_URL}/teams/${this.id}/roster?date=${formattedDate}`);
         const roster = response.data.roster;
         for (let i = 0; i < roster.length; i++) {
           const player = roster[i];
@@ -341,6 +343,9 @@ export class Team {
             this.pitchers.push(player.person.id);
           } else {
             this.hitters.push(player.person.id);
+          }
+          if (this.setNames) {
+            this.idToNames.set(player.person.id, player.person.fullName);
           }
         }
       } catch (error) {
@@ -738,9 +743,9 @@ async function simulateOneGame(game, date) {
   const id1  = game.teams.home.team.id;
   const id2 = game.teams.away.team.id;
   // fix divisions later (TODO)
-  let team1 = new Team(game.teams.home.team.name, "ALE", id1, date);
+  let team1 = new Team(game.teams.home.team.name, "ALE", id1, date, true);
   await team1.setup();
-  let team2 = new Team(game.teams.away.team.name, "ALE", id2, date);
+  let team2 = new Team(game.teams.away.team.name, "ALE", id2, date, true);
   await team2.setup();
   let startingPitcher1 = gameBox.data.teams.home.pitchers[0];
   let startingPitcher2 = gameBox.data.teams.away.pitchers[0];
@@ -753,8 +758,21 @@ async function simulateOneGame(game, date) {
   let startingPitcher1R = team1.pitcherRatings[team1.pitchers.indexOf(startingPitcher1)];
   let startingPitcher2R = team2.pitcherRatings[team2.pitchers.indexOf(startingPitcher2)];
   const prob = getProbability(team1, team2, startingPitcher1R, startingPitcher2R);
-  const team1Res = [team1.code, team1.pitcherRating, team1.hitterRating, startingPitcher1R, prob];
-  const team2Res = [team2.code, team2.pitcherRating, team2.hitterRating, startingPitcher2R, 1 - prob];
+  let lineup1 = [];
+  for (let i = 0; i < gameBox.data.teams.home.battingOrder.length; i++) {
+    if (i == 1) {
+      console.log(gameBox.data.teams.home.battingOrder[i]);
+    }
+    lineup1.push(team1.idToNames.get(gameBox.data.teams.home.battingOrder[i]));
+  }
+  lineup1.push(team1.idToNames.get(startingPitcher1));
+  let lineup2 = [];
+  for (let i = 0; i < gameBox.data.teams.away.battingOrder.length; i++) {
+    lineup2.push(team2.idToNames.get(gameBox.data.teams.away.battingOrder[i]));
+  }
+  lineup2.push(team2.idToNames.get(startingPitcher2));
+  const team1Res = [team1.code, team1.pitcherRating, team1.hitterRating, startingPitcher1R, prob, lineup1];
+  const team2Res = [team2.code, team2.pitcherRating, team2.hitterRating, startingPitcher2R, 1 - prob, lineup2];
   return [team1Res, team2Res];
 }
 
