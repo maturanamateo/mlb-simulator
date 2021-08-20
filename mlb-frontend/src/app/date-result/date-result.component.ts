@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
+import { TeamGame } from '../_models/result.model';
 
 @Component({
   selector: 'app-date-result',
@@ -19,6 +20,7 @@ export class DateResultComponent implements OnInit {
             'Rangers', 'Rays', 'Red Sox', 'Reds', 'Rockies',
             'Royals', 'Tigers', 'Twins', 'White Sox', 'Yankees'];
   form: FormGroup;
+  games: TeamGame[][];
 
   constructor(private http: HttpClient, private formBuilder: FormBuilder) { }
 
@@ -28,10 +30,6 @@ export class DateResultComponent implements OnInit {
       team: [null, Validators.required],
       date: [null, [Validators.required, this.dateValidator]]
     });
-  }
-
-  change(teamName): void {
-    console.log(this.teamToId.get(teamName));
   }
 
   setMap(): void {
@@ -69,6 +67,7 @@ export class DateResultComponent implements OnInit {
 
   dateValidator(control: FormControl) {
     const date = control.value;
+    const today = new Date();
     console.log(date);
     if (date && date.length === 10) {
       if (date.charAt(2) !== '-' || date.charAt(5) !== '-') {
@@ -86,6 +85,9 @@ export class DateResultComponent implements OnInit {
       if (year < 2010) {
         return {error: 'invalid year'};
       }
+      if (year > today.getFullYear() || month > today.getMonth() + 1 || day > today.getDate()) {
+        return {error: 'future date'};
+      }
       return null;
     }
     return {error: 'invalid format'};
@@ -95,7 +97,16 @@ export class DateResultComponent implements OnInit {
     if (!this.form.valid) {
       return;
     }
-    console.log(this.form.value);
+    const team = this.teamToId.get(this.form.value.team);
+    const date = this.form.value.date;
+    this.http.get<TeamGame[][]>(`${environment.apiUrl}/results/game?id=${team}&date=${date}`).subscribe(data =>
+      {
+        this.games = data;
+        this.areGames = (this.games.length === 0) ? false : true;
+        console.log(this.areGames);
+        console.log(this.games);
+      }
+    );
   }
 
 }

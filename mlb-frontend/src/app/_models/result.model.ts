@@ -27,6 +27,7 @@ export interface TeamGame {
     hittingRating: number;
     startingPitcherRating: number;
     probability: number;
+    lineup?: Array<string>;
 }
 
 export interface DateProjections {

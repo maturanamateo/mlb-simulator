@@ -19,3 +19,6 @@
         <button mat-raised-button color="warn" type="submit" [disabled]="!form.valid"> Go! </button>
     </form>
 </div>
+<div class = "noGames" *ngIf="!areGames">
+    No Games For that Team + Date
+</div>

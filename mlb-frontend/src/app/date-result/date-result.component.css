@@ -20,3 +20,11 @@
 .mat-select.mat-select {
     font-family: 'Gill Sans',sans-serif;
 }
+
+.noGames {
+    font-family: 'Gill Sans',sans-serif;
+    font-size: 50px;
+    text-align: center;
+    font-weight: 500;
+    margin-top: 30px;
+}
