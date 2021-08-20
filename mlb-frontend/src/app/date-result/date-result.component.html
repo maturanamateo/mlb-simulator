@@ -22,3 +22,57 @@
 <div class = "noGames" *ngIf="!areGames">
     No Games For that Team + Date
 </div>
+<div class = "tables" *ngIf="areGames">
+    <table *ngFor="let game of games">
+        <tr>
+            <td> </td>
+            <td class = "teams" [ngStyle]="{'background-color': teamColors.get(game[0][0])}"> {{ game[0][0] }} </td>
+            <td class = "teams" [ngStyle]="{'background-color': teamColors.get(game[1][0])}"> {{ game[1][0] }} </td>
+        <tr>
+        <tr *ngFor="let number of [0, 1, 2, 3, 4]">
+            <td> </td>
+            <td class = "lineups"> {{number + 1}}. {{ game[0][5][number]}} </td>
+            <td class = "lineups"> {{number + 1}}. {{ game[1][5][number]}} </td>
+        <tr>
+        <tr>
+            <th class = "headers"> LINEUPS </th>
+            <td class = "lineups"> {{6}}. {{ game[0][5][5]}} </td>
+            <td class = "lineups"> {{6}}. {{ game[1][5][5]}} </td>
+        <tr>
+        <tr *ngFor="let number of [6, 7, 8]">
+            <td> </td>
+            <td class = "lineups"> {{number + 1}}. {{ game[0][5][number]}} </td>
+            <td class = "lineups"> {{number + 1}}. {{ game[1][5][number]}} </td>
+        <tr>
+        <tr>
+            <td> </td>
+            <td class = "lineups"> P. {{ game[0][5][9]}} </td>
+            <td class = "lineups"> P. {{ game[1][5][9]}} </td>
+        <tr>
+        <tr>
+            <th class = "headers"> PITCHING RATING </th>
+            <td class = "ratings"> {{ game[0][1]}} </td>
+            <td class = "ratings"> {{ game[1][1]}} </td>
+        <tr>
+        <tr>
+            <th class = "headers"> HITTING RATING </th>
+            <td class = "ratings"> {{ game[0][2]}} </td>
+            <td class = "ratings"> {{ game[1][2]}} </td>
+        <tr>
+        <tr>
+            <th class = "headers"> STARTER RATING </th>
+            <td class = "ratings"> {{ game[0][3]}} </td>
+            <td class = "ratings"> {{ game[1][3]}} </td>
+        <tr>
+        <tr>
+            <th class = "headers"> WIN PROBABILITY</th>
+            <td class = "ratings" [ngStyle]="{'background-color': getWinColor(game[0][4])}"> {{ game[0][4]}}% </td>
+            <td class = "ratings" [ngStyle]="{'background-color': getWinColor(game[1][4])}"> {{ game[1][4]}}% </td>
+        <tr>
+        <tr>
+            <th class = "headers"> RESULT </th>
+            <td class = "ratings"> {{ game[0][6]}} </td>
+            <td class = "ratings"> {{ game[1][6]}} </td>
+        <tr>
+    </table>
+</div>

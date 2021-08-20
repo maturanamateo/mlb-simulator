@@ -726,7 +726,15 @@ export async function simulateOneDate(id, date) {
       console.log(response.data.totalGames);
       for (let i = 0; i < response.data.totalGames; i++) {
         const game = response.data.dates[0].games[i];
-        const gameResponse = await simulateOneGame(game, date);
+        let gameResponse = await simulateOneGame(game, date);
+        gameResponse[0][1] = formattedFloat(gameResponse[0][1]);
+        gameResponse[0][2] = formattedFloat(gameResponse[0][2]);
+        gameResponse[0][3] = formattedFloat(gameResponse[0][3]);
+        gameResponse[0][4] = formattedFloat(100 * gameResponse[0][4]);
+        gameResponse[1][1] = formattedFloat(gameResponse[1][1]);
+        gameResponse[1][2] = formattedFloat(gameResponse[1][2]);
+        gameResponse[1][3] = formattedFloat(gameResponse[1][3]);
+        gameResponse[1][4] = formattedFloat(100 * gameResponse[1][4]);
         gameResponses.push(gameResponse);
       }
     } catch (error) {
@@ -740,6 +748,7 @@ export async function simulateOneDate(id, date) {
 async function simulateOneGame(game, date) {
   const gameId = game.gamePk;
   const gameBox = await axios.get(`${MLB_API_URL}/game/${gameId}/boxscore`);
+  const linescore = await axios.get(`${MLB_API_URL}/game/${gameId}/linescore`);
   const id1  = game.teams.home.team.id;
   const id2 = game.teams.away.team.id;
   // fix divisions later (TODO)
@@ -771,8 +780,10 @@ async function simulateOneGame(game, date) {
     lineup2.push(team2.idToNames.get(gameBox.data.teams.away.battingOrder[i]));
   }
   lineup2.push(team2.idToNames.get(startingPitcher2));
-  const team1Res = [team1.code, team1.pitcherRating, team1.hitterRating, startingPitcher1R, prob, lineup1];
-  const team2Res = [team2.code, team2.pitcherRating, team2.hitterRating, startingPitcher2R, 1 - prob, lineup2];
+  const runs1 = linescore.data.teams.home.runs;
+  const runs2 = linescore.data.teams.away.runs;
+  const team1Res = [team1.code, team1.pitcherRating, team1.hitterRating, startingPitcher1R, prob, lineup1, runs1];
+  const team2Res = [team2.code, team2.pitcherRating, team2.hitterRating, startingPitcher2R, 1 - prob, lineup2, runs2];
   return [team1Res, team2Res];
 }
 
