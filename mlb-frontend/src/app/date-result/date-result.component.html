@@ -1,0 +1,21 @@
+<div class = "disclaimer">
+    Note: Due to incomplete roster data, dates before 2010 are not permitted.
+</div>
+<div class = "form">
+    <form [formGroup]="form" (submit)="submit()">
+        <mat-form-field appearance="fill">
+            <mat-label> Team </mat-label>
+            <mat-select formControlName=team placeholder="Astros">
+                <mat-option *ngFor="let team of teams" [value]="team">
+                    {{ team }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+            <mat-label> Date (MM-DD-YYYY) </mat-label>
+            <input matInput formControlName=date>
+        </mat-form-field>
+        <br>
+        <button mat-raised-button color="warn" type="submit" [disabled]="!form.valid"> Go! </button>
+    </form>
+</div>

@@ -15,7 +15,11 @@ import { LegendService } from '@syncfusion/ej2-angular-charts';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { DateResultComponent } from './date-result/date-result.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 
 @NgModule({
   declarations: [
@@ -24,7 +28,8 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
     GameProjectionsComponent,
     HeaderComponent,
     FooterComponent,
-    GraphsComponent
+    GraphsComponent,
+    DateResultComponent
   ],
   imports: [
     BrowserModule,
@@ -34,7 +39,10 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    NoopAnimationsModule
+    NoopAnimationsModule,
+    MatButtonModule,
+    ReactiveFormsModule,
+    MatDatepickerModule
   ],
   providers: [CategoryService, LineSeriesService, DateTimeService, DataLabelService,
               LegendService],
