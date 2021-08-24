@@ -1,6 +1,6 @@
 # Introduction
 This project projects the remainder of the current MLB season and provides up to date postseason odds
-and projections for the current day's games. A website will be setup once deployed to production.
+and projections for the current day's games. A website will be set up once deployed to production.
 
 # To run locally
 1. Connect a local MongoDB for the data
