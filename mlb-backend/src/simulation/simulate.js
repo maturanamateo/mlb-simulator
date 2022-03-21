@@ -382,10 +382,10 @@ async function setTeams() {
   await whitesox.setup();
   idToTeamIndex.set(145, 5);
   teams.push(whitesox);
-  let indians = new Team('CLE', 'ALC', 114);
-  await indians.setup();
+  let guardians = new Team('CLE', 'ALC', 114);
+  await guardians.setup();
   idToTeamIndex.set(114, 6);
-  teams.push(indians);
+  teams.push(guardians);
   let tigers = new Team('DET', 'ALC', 116);
   await tigers.setup();
   idToTeamIndex.set(116, 7);
